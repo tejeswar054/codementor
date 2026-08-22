@@ -128,7 +128,7 @@ Please check if the updated code resolves the previous bug, and set "reanalysisC
 `;
     }
 
-    const modelCandidates = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-exp'];
+    const modelCandidates = ['gemini-2.5-flash', 'gemini-1.5-flash'];
     let lastError = null;
 
     for (const modelName of modelCandidates) {
@@ -148,7 +148,16 @@ Please check if the updated code resolves the previous bug, and set "reanalysisC
       } catch (err) {
         console.warn(`Model ${modelName} failed:`, err.message);
         lastError = err;
+
+        if (err.message.includes('429') || err.message.includes('Quota')) {
+          console.warn('Gemini 429 rate limit hit.');
+          break; // Stop trying other models when rate limit is exceeded
+        }
       }
+    }
+
+    if (lastError?.message?.includes('429') || lastError?.message?.includes('Quota')) {
+      throw new Error('⚠️ Gemini API Rate Limit Reached (20 requests/min on free tier). Please wait 30 seconds and click Analyze Code again.');
     }
 
     throw new Error(lastError?.message || 'Failed to analyze code with Gemini AI.');
