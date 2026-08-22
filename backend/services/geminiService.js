@@ -35,39 +35,37 @@ class GeminiService {
 You are CodeMentor AI, an expert computer science mentor helping students debug LeetCode-style algorithms.
 Your goal is to act as a Socratic mentor: guide the user through clear root-cause explanations, progressive hints, test case generation, and complexity analysis.
 
-CRITICAL MENTORING RULES:
-1. Focus strictly on the supplied code, problem statement, and test case feedback.
-2. If failed test case information is provided, analyze WHY the user's code produces the incorrect actual output for that specific input.
-3. Do NOT immediately dump the complete final answer. Provide progressive hints (Hint 1: High level direction; Hint 2: Specific logic flaw location; Hint 3: Actionable structural pointer).
-4. If the code passes all tests or is already optimal, set bugFound to false and explain why the logic is clean.
-5. Return ONLY a valid JSON object matching the requested schema. No markdown text outside the JSON.
+CRITICAL CONDITIONAL RULES:
+
+1. CODE IS INCORRECT (bugFound = true):
+   - Set summary to "Potential Issue Detected".
+   - Explain clearly what part of the logic has a bug (e.g. "Your loop starts from index i instead of i + 1...").
+   - Provide 3 progressive hints in the "hints" array (Hint 1: High level pointer; Hint 2: Logic flaw location; Hint 3: Structural fix suggestion).
+   - Provide a full explanation and a suggested fix snippet in "suggestedFix".
+
+2. CODE IS CORRECT (bugFound = false):
+   - Set summary to "No Issues Detected".
+   - Set bugExplanation to "Your implementation appears logically correct. You can now run the test cases."
+   - Set hints to [] (EMPTY ARRAY). Do NOT provide hints for a correct solution.
+   - Set suggestedFix to "" (EMPTY STRING).
+   - Provide time and space complexity in "complexity".
+
+3. IF FAILED TEST CASES ARE PROVIDED:
+   - Set bugFound to true.
+   - Set summary to "Failed Test Case Analysis".
+   - Analyze specifically why the user's actual output differed from the expected output.
+
+Return ONLY a valid JSON object matching the requested schema. No markdown text outside the JSON.
 
 JSON SCHEMA:
 {
-  "summary": "Short 1-line summary of findings (e.g. 'Fails on duplicate elements boundary test')",
-  "bugFound": true,
-  "bugExplanation": "Clear explanation of the logic flaw causing the test failure or issue",
-  "hints": [
-    "Hint 1: High-level pointer without giving away the exact solution",
-    "Hint 2: Specific logic flaw location or edge-case concept",
-    "Hint 3: Direct actionable suggestion for how to structure the fix"
-  ],
-  "fullExplanation": "Detailed step-by-step walkthrough of the root cause and why the fix works",
-  "suggestedFix": "The full corrected code snippet in ${language}",
-  "testCases": [
-    {
-      "name": "Normal Case",
-      "input": "Sample standard input",
-      "expectedOutput": "Expected output",
-      "reason": "Why this test case matters"
-    },
-    {
-      "name": "Edge Case",
-      "input": "Sample edge input",
-      "expectedOutput": "Expected output",
-      "reason": "Why this test case matters"
-    }
-  ],
+  "summary": "Potential Issue Detected OR No Issues Detected",
+  "bugFound": true or false,
+  "bugExplanation": "Explanation of issue OR 'Your implementation appears logically correct. You can now run the test cases.'",
+  "hints": ["Hint 1", "Hint 2", "Hint 3"] OR [],
+  "fullExplanation": "Walkthrough if bugFound is true, else empty string",
+  "suggestedFix": "Code fix snippet if bugFound is true, else empty string",
+  "testCases": [],
   "complexity": {
     "time": "O(...) explanation",
     "space": "O(...) explanation"
@@ -123,7 +121,7 @@ Previous Bug Explanation: ${previousAnalysis.bugExplanation || 'N/A'}
           model: modelName,
           generationConfig: {
             responseMimeType: 'application/json',
-            temperature: 0.2,
+            temperature: 0.1,
           },
         });
 
@@ -163,21 +161,21 @@ Previous Bug Explanation: ${previousAnalysis.bugExplanation || 'N/A'}
       }
     }
 
+    const isBugFound = typeof json.bugFound === 'boolean' ? json.bugFound : true;
+
     return {
-      summary: json.summary || 'Code analysis complete.',
-      bugFound: typeof json.bugFound === 'boolean' ? json.bugFound : true,
-      bugExplanation: json.bugExplanation || 'Analysis completed successfully.',
-      hints: Array.isArray(json.hints) && json.hints.length > 0
-        ? json.hints
-        : ['Check your loop bounds and indices.', 'Verify variable initializations.'],
-      fullExplanation: json.fullExplanation || json.bugExplanation || 'Walkthrough completed.',
-      suggestedFix: json.suggestedFix || code,
+      summary: json.summary || (isBugFound ? 'Potential Issue Detected' : 'No Issues Detected'),
+      bugFound: isBugFound,
+      bugExplanation: json.bugExplanation || (isBugFound ? 'Analysis completed.' : 'Your implementation appears logically correct. You can now run the test cases.'),
+      hints: isBugFound && Array.isArray(json.hints) ? json.hints : [],
+      fullExplanation: isBugFound ? (json.fullExplanation || '') : '',
+      suggestedFix: isBugFound ? (json.suggestedFix || '') : '',
       testCases: Array.isArray(json.testCases) ? json.testCases : [],
       complexity: {
         time: json.complexity?.time || 'O(N)',
         space: json.complexity?.space || 'O(1)'
       },
-      fixStatus: json.fixStatus || (json.bugFound ? 'Issue detected in solution.' : 'Solution appears correct.')
+      fixStatus: json.fixStatus || (isBugFound ? 'Issue detected in solution.' : 'Solution appears correct.')
     };
   }
 }

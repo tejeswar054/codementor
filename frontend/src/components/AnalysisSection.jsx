@@ -1,11 +1,11 @@
 import React from 'react';
-import { AlertCircle, CheckCircle2, Info, Sparkles, RefreshCw } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Info, Play, Sparkles, RefreshCw } from 'lucide-react';
 import HintAccordion from './HintAccordion';
 import TestCaseCard from './TestCaseCard';
 import SuggestedFixCard from './SuggestedFixCard';
 import ComplexityBadge from './ComplexityBadge';
 
-export default function AnalysisSection({ analysis, onApplyToEditor, language }) {
+export default function AnalysisSection({ analysis, onApplyToEditor, language, onRunTests }) {
   if (!analysis) return null;
 
   const {
@@ -22,12 +22,12 @@ export default function AnalysisSection({ analysis, onApplyToEditor, language })
 
   return (
     <div className="flex flex-col gap-4 animate-fade-in">
-      {/* Overview Status Banner */}
+      {/* Conditional Status Banner */}
       <div
         className={`border rounded-xl p-4 shadow-xl ${
           bugFound
-            ? 'bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-900 border-amber-500/40'
-            : 'bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 border-emerald-500/40'
+            ? 'bg-gradient-to-r from-amber-950/50 via-slate-900 to-slate-900 border-amber-500/40'
+            : 'bg-gradient-to-r from-emerald-950/50 via-slate-900 to-slate-900 border-emerald-500/40'
         }`}
       >
         <div className="flex items-start justify-between gap-3 mb-2">
@@ -42,14 +42,14 @@ export default function AnalysisSection({ analysis, onApplyToEditor, language })
               </div>
             )}
             <h2 className="text-base font-bold text-white">
-              {bugFound ? 'Issue Identified in Code' : 'No Bugs Detected'}
+              {bugFound ? '🐛 Potential Issue Detected' : '✅ No Issues Detected'}
             </h2>
           </div>
 
           {fixStatus && (
             <span
               className={`px-2.5 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5 ${
-                fixStatus.toLowerCase().includes('fixed') || fixStatus.toLowerCase().includes('clean')
+                !bugFound || fixStatus.toLowerCase().includes('fixed') || fixStatus.toLowerCase().includes('clean')
                   ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
                   : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
               }`}
@@ -60,17 +60,33 @@ export default function AnalysisSection({ analysis, onApplyToEditor, language })
           )}
         </div>
 
-        {/* Summary text */}
+        {/* Explanation text */}
         <p className="text-xs text-slate-300 leading-relaxed font-medium pl-8">
-          {summary}
+          {bugExplanation || summary}
         </p>
+
+        {/* Direct "Run Test Cases" button if code is correct */}
+        {!bugFound && onRunTests && (
+          <div className="mt-3 pt-3 border-t border-emerald-500/20 flex items-center justify-between">
+            <span className="text-xs text-emerald-300 font-medium">
+              Ready to verify against all test cases?
+            </span>
+            <button
+              onClick={onRunTests}
+              className="py-2 px-3.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all active:scale-[0.99]"
+            >
+              <Play className="w-3.5 h-3.5 fill-current" />
+              <span>▶ Run Test Cases</span>
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Detailed Bug Explanation */}
-      {bugExplanation && (
+      {/* Detailed Bug Explanation (Only when bugFound is true) */}
+      {bugFound && bugExplanation && (
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg">
           <div className="flex items-center gap-2 mb-2 border-b border-slate-800 pb-2.5">
-            <Info className="w-4 h-4 text-indigo-400" />
+            <Info className="w-4 h-4 text-amber-400" />
             <h3 className="text-sm font-semibold text-white">Root Cause Explanation</h3>
           </div>
           <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-line">
@@ -79,13 +95,13 @@ export default function AnalysisSection({ analysis, onApplyToEditor, language })
         </div>
       )}
 
-      {/* Progressive Hints Accordion */}
-      {hints && hints.length > 0 && (
+      {/* Progressive Hints Accordion (Only when bugFound is true AND hints exist) */}
+      {bugFound && hints && hints.length > 0 && (
         <HintAccordion hints={hints} fullExplanation={fullExplanation} />
       )}
 
-      {/* Suggested Fix Card */}
-      {suggestedFix && (
+      {/* Suggested Fix Card (Only when bugFound is true AND suggestedFix exists) */}
+      {bugFound && suggestedFix && (
         <SuggestedFixCard
           suggestedFix={suggestedFix}
           onApplyToEditor={onApplyToEditor}
@@ -93,7 +109,7 @@ export default function AnalysisSection({ analysis, onApplyToEditor, language })
         />
       )}
 
-      {/* Test Cases */}
+      {/* Generated Test Cases */}
       {testCases && testCases.length > 0 && <TestCaseCard testCases={testCases} />}
 
       {/* Complexity Analysis */}

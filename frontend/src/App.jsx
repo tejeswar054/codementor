@@ -199,6 +199,7 @@ export default function App() {
                         analysis={analysis}
                         onApplyToEditor={handleApplyToEditor}
                         language={language}
+                        onRunTests={handleRunTests}
                       />
                     )}
 
