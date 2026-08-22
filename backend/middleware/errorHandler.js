@@ -11,7 +11,7 @@ function errorHandler(err, req, res, next) {
   if (clientMessage.includes('API_KEY') || clientMessage.includes('API key')) {
     clientMessage = 'Server configuration error: Unable to authenticate with AI service. Please check API key setup.';
   } else if (clientMessage.includes('429') || clientMessage.toLowerCase().includes('quota') || clientMessage.toLowerCase().includes('rate limit')) {
-    clientMessage = 'AI service rate limit exceeded. Please wait a moment and try again.';
+    clientMessage = '⚠️ Gemini API Free Tier Rate Limit Reached (20 requests/min). Please wait 30 seconds and click Analyze Code again.';
   }
 
   res.status(statusCode).json({
