@@ -14,7 +14,7 @@ class GeminiService {
   }
 
   /**
-   * Analyze submitted code, problem description, and optional failed test cases
+   * Analyze submitted code, problem description, optional failed test cases, and previous analysis
    * @param {Object} params
    * @param {string} params.language
    * @param {string} params.problem
@@ -50,7 +50,17 @@ CRITICAL CONDITIONAL RULES:
    - Set suggestedFix to "" (EMPTY STRING).
    - Provide time and space complexity in "complexity".
 
-3. IF FAILED TEST CASES ARE PROVIDED:
+3. RE-ANALYSIS COMPARISON (If PREVIOUS ANALYSIS CONTEXT is provided):
+   - Compare the updated code against the previous bug explanation.
+   - Populate "reanalysisContext":
+     {
+       "isReanalysis": true,
+       "previousIssue": "Short summary of previous bug (e.g. 'Incorrect handling of duplicate values.')",
+       "currentComparison": "Short 1-sentence comparison (e.g. 'That issue appears to be fixed. You can now run the test cases.' OR 'The previous issue persists in your updated code.')",
+       "isResolved": true or false
+     }
+
+4. IF FAILED TEST CASES ARE PROVIDED:
    - Set bugFound to true.
    - Set summary to "Failed Test Case Analysis".
    - Analyze specifically why the user's actual output differed from the expected output.
@@ -65,6 +75,12 @@ JSON SCHEMA:
   "hints": ["Hint 1", "Hint 2", "Hint 3"] OR [],
   "fullExplanation": "Walkthrough if bugFound is true, else empty string",
   "suggestedFix": "Code fix snippet if bugFound is true, else empty string",
+  "reanalysisContext": {
+    "isReanalysis": true or false,
+    "previousIssue": "Previous bug summary",
+    "currentComparison": "Current status comparison",
+    "isResolved": true or false
+  },
   "testCases": [],
   "complexity": {
     "time": "O(...) explanation",
@@ -105,9 +121,10 @@ Please analyze why the user's code produced "${failedTestCases[0].actual}" inste
 
     if (previousAnalysis) {
       prompt += `
-[PREVIOUS ANALYSIS CONTEXT]
+[PREVIOUS ANALYSIS CONTEXT FOR RE-ANALYSIS COMPARISON]
 Previous Summary: ${previousAnalysis.summary || 'N/A'}
 Previous Bug Explanation: ${previousAnalysis.bugExplanation || 'N/A'}
+Please check if the updated code resolves the previous bug, and set "reanalysisContext" accordingly.
 `;
     }
 
@@ -127,7 +144,7 @@ Previous Bug Explanation: ${previousAnalysis.bugExplanation || 'N/A'}
 
         const result = await model.generateContent(prompt);
         const responseText = result.response.text();
-        return this.parseAndValidateJSON(responseText, language, code);
+        return this.parseAndValidateJSON(responseText, language, code, previousAnalysis);
       } catch (err) {
         console.warn(`Model ${modelName} failed:`, err.message);
         lastError = err;
@@ -140,7 +157,7 @@ Previous Bug Explanation: ${previousAnalysis.bugExplanation || 'N/A'}
   /**
    * Safely parses JSON string and ensures required schema fields exist.
    */
-  parseAndValidateJSON(rawText, language, code) {
+  parseAndValidateJSON(rawText, language, code, previousAnalysis) {
     let cleanText = rawText.trim();
     if (cleanText.startsWith('```json')) {
       cleanText = cleanText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
@@ -163,6 +180,19 @@ Previous Bug Explanation: ${previousAnalysis.bugExplanation || 'N/A'}
 
     const isBugFound = typeof json.bugFound === 'boolean' ? json.bugFound : true;
 
+    // Check if reanalysis context exists or create fallback if previousAnalysis was provided
+    let reanalysisContext = json.reanalysisContext;
+    if (!reanalysisContext && previousAnalysis) {
+      reanalysisContext = {
+        isReanalysis: true,
+        previousIssue: previousAnalysis.summary || previousAnalysis.bugExplanation || 'Previous issue',
+        currentComparison: isBugFound
+          ? 'The previous issue or a new issue persists in your code.'
+          : 'That issue appears to be fixed. You can now run the test cases.',
+        isResolved: !isBugFound
+      };
+    }
+
     return {
       summary: json.summary || (isBugFound ? 'Potential Issue Detected' : 'No Issues Detected'),
       bugFound: isBugFound,
@@ -170,6 +200,7 @@ Previous Bug Explanation: ${previousAnalysis.bugExplanation || 'N/A'}
       hints: isBugFound && Array.isArray(json.hints) ? json.hints : [],
       fullExplanation: isBugFound ? (json.fullExplanation || '') : '',
       suggestedFix: isBugFound ? (json.suggestedFix || '') : '',
+      reanalysisContext: reanalysisContext || null,
       testCases: Array.isArray(json.testCases) ? json.testCases : [],
       complexity: {
         time: json.complexity?.time || 'O(N)',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertCircle, CheckCircle2, Info, Play, Sparkles, RefreshCw } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Info, Play, Sparkles, RefreshCw, RotateCcw } from 'lucide-react';
 import HintAccordion from './HintAccordion';
 import TestCaseCard from './TestCaseCard';
 import SuggestedFixCard from './SuggestedFixCard';
@@ -18,6 +18,7 @@ export default function AnalysisSection({ analysis, onApplyToEditor, language, o
     testCases,
     complexity,
     fixStatus,
+    reanalysisContext,
   } = analysis;
 
   return (
@@ -81,6 +82,31 @@ export default function AnalysisSection({ analysis, onApplyToEditor, language, o
           </div>
         )}
       </div>
+
+      {/* Re-Analysis Context Comparison Card */}
+      {reanalysisContext && reanalysisContext.isReanalysis && (
+        <div className="bg-slate-900 border border-indigo-500/30 rounded-xl p-4 shadow-lg flex flex-col gap-2">
+          <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+            <RotateCcw className="w-4 h-4 text-indigo-400" />
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+              Re-Analysis Comparison
+            </h3>
+          </div>
+
+          <div className="text-xs space-y-1.5 pt-1">
+            <div>
+              <span className="text-slate-400 font-medium">Previous issue: </span>
+              <span className="text-rose-300 font-mono">{reanalysisContext.previousIssue}</span>
+            </div>
+            <div>
+              <span className="text-slate-400 font-medium">Current analysis: </span>
+              <span className={reanalysisContext.isResolved ? 'text-emerald-300 font-semibold' : 'text-amber-300 font-semibold'}>
+                {reanalysisContext.isResolved ? '✅ ' : '⚠️ '}{reanalysisContext.currentComparison}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Detailed Bug Explanation (Only when bugFound is true) */}
       {bugFound && bugExplanation && (
