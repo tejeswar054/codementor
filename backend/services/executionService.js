@@ -65,15 +65,47 @@ class ExecutionService {
         const script = new vm.Script(code);
         script.runInContext(context, { timeout: 1000 });
 
-        // Parse input arguments from string representation
-        const parseInputScript = new vm.Script(`[${tc.input}]`);
-        const args = parseInputScript.runInContext(context, { timeout: 1000 });
-
-        // Call the user's function inside context
         if (typeof context[functionName] !== 'function') {
           throw new Error(`Function "${functionName}" is not defined in user code.`);
         }
 
+        const fnParamCount = context[functionName].length;
+        let rawInput = tc.input.trim();
+        let args;
+
+        // Parse arguments array intelligently
+        if (rawInput.startsWith('[') && rawInput.endsWith(']')) {
+          try {
+            const directScript = new vm.Script(rawInput);
+            const directVal = directScript.runInContext(context, { timeout: 1000 });
+
+            if (Array.isArray(directVal) && fnParamCount > 1 && directVal.length === fnParamCount) {
+              args = directVal;
+            } else if (fnParamCount === 1) {
+              args = [directVal];
+            } else {
+              const wrapScript = new vm.Script(`[${rawInput}]`);
+              const wrapVal = wrapScript.runInContext(context, { timeout: 1000 });
+              if (Array.isArray(wrapVal[0]) && wrapVal[0].length === fnParamCount) {
+                args = wrapVal[0];
+              } else {
+                args = directVal;
+              }
+            }
+          } catch (e) {
+            const wrapScript = new vm.Script(`[${rawInput}]`);
+            args = wrapScript.runInContext(context, { timeout: 1000 });
+          }
+        } else {
+          const wrapScript = new vm.Script(`[${rawInput}]`);
+          args = wrapScript.runInContext(context, { timeout: 1000 });
+        }
+
+        if (!Array.isArray(args)) {
+          args = [args];
+        }
+
+        // Call the user's function inside context
         const actualResult = context[functionName](...args);
         const actualStr = JSON.stringify(actualResult);
         const expectedStr = tc.expected;
@@ -126,7 +158,6 @@ class ExecutionService {
    * Judge0 API Execution integration for multi-language execution
    */
   async executeWithJudge0({ language, code, functionName, testCases }) {
-    // Map language to Judge0 language_id
     const languageIds = {
       javascript: 63,
       python: 71,
@@ -142,7 +173,6 @@ class ExecutionService {
 
     for (let i = 0; i < testCases.length; i++) {
       const tc = testCases[i];
-      // Wrap user code to invoke function and print JSON output to stdout
       const runnerCode = `
 ${code}
 

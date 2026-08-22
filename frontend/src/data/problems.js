@@ -44,10 +44,10 @@ You can return the answer in any order.`,
   // Write your solution here
 }`,
     testCases: [
-      { input: '[[2,7,11,15], 9]', expected: '[0,1]', type: 'normal' },
-      { input: '[[3,2,4], 6]', expected: '[1,2]', type: 'normal' },
-      { input: '[[3,3], 6]', expected: '[0,1]', type: 'edge' },
-      { input: '[[-1,-3,-4,5,8], 4]', expected: '[0,3]', type: 'boundary' }
+      { input: '[2,7,11,15], 9', expected: '[0,1]', type: 'normal' },
+      { input: '[3,2,4], 6', expected: '[1,2]', type: 'normal' },
+      { input: '[3,3], 6', expected: '[0,1]', type: 'edge' },
+      { input: '[-1,-3,-4,5,8], 4', expected: '[0,3]', type: 'boundary' }
     ]
   },
   {
@@ -83,10 +83,10 @@ Return the maximum profit you can achieve from this transaction. If you cannot a
   // Write your solution here
 }`,
     testCases: [
-      { input: '[[7,1,5,3,6,4]]', expected: '5', type: 'normal' },
-      { input: '[[7,6,4,3,1]]', expected: '0', type: 'edge' },
-      { input: '[[2,4,1]]', expected: '2', type: 'normal' },
-      { input: '[[5]]', expected: '0', type: 'boundary' }
+      { input: '[7,1,5,3,6,4]', expected: '5', type: 'normal' },
+      { input: '[7,6,4,3,1]', expected: '0', type: 'edge' },
+      { input: '[2,4,1]', expected: '2', type: 'normal' },
+      { input: '[5]', expected: '0', type: 'boundary' }
     ]
   },
   {
@@ -120,10 +120,10 @@ A **subarray** is a contiguous non-empty sequence of elements within an array.`,
   // Write your solution here
 }`,
     testCases: [
-      { input: '[[-2,1,-3,4,-1,2,1,-5,4]]', expected: '6', type: 'normal' },
-      { input: '[[1]]', expected: '1', type: 'boundary' },
-      { input: '[[5,4,-1,7,8]]', expected: '23', type: 'normal' },
-      { input: '[[-5,-2,-3,-1]]', expected: '-1', type: 'edge' }
+      { input: '[-2,1,-3,4,-1,2,1,-5,4]', expected: '6', type: 'normal' },
+      { input: '[1]', expected: '1', type: 'boundary' },
+      { input: '[5,4,-1,7,8]', expected: '23', type: 'normal' },
+      { input: '[-5,-2,-3,-1]', expected: '-1', type: 'edge' }
     ]
   },
   {
@@ -153,10 +153,10 @@ A **subarray** is a contiguous non-empty sequence of elements within an array.`,
   // Write your solution here
 }`,
     testCases: [
-      { input: '[[1,2,3,1]]', expected: 'true', type: 'normal' },
-      { input: '[[1,2,3,4]]', expected: 'false', type: 'normal' },
-      { input: '[[1,1,1,3,3,4,3,2,4,2]]', expected: 'true', type: 'edge' },
-      { input: '[[42]]', expected: 'false', type: 'boundary' }
+      { input: '[1,2,3,1]', expected: 'true', type: 'normal' },
+      { input: '[1,2,3,4]', expected: 'false', type: 'normal' },
+      { input: '[1,1,1,3,3,4,3,2,4,2]', expected: 'true', type: 'edge' },
+      { input: '[42]', expected: 'false', type: 'boundary' }
     ]
   },
   {
@@ -182,9 +182,9 @@ A **subarray** is a contiguous non-empty sequence of elements within an array.`,
   // Write your solution here
 }`,
     testCases: [
-      { input: '[[3,7,2,9,5]]', expected: '9', type: 'normal' },
-      { input: '[[-10,-5,-2,-50]]', expected: '-2', type: 'edge' },
-      { input: '[[100]]', expected: '100', type: 'boundary' }
+      { input: '[3,7,2,9,5]', expected: '9', type: 'normal' },
+      { input: '[-10,-5,-2,-50]', expected: '-2', type: 'edge' },
+      { input: '[100]', expected: '100', type: 'boundary' }
     ]
   },
   {
@@ -216,10 +216,10 @@ An **Anagram** is a word or phrase formed by rearranging the letters of a differ
   // Write your solution here
 }`,
     testCases: [
-      { input: '["anagram", "nagaram"]', expected: 'true', type: 'normal' },
-      { input: '["rat", "car"]', expected: 'false', type: 'normal' },
-      { input: '["a", "ab"]', expected: 'false', type: 'edge' },
-      { input: '["listen", "silent"]', expected: 'true', type: 'normal' }
+      { input: '"anagram", "nagaram"', expected: 'true', type: 'normal' },
+      { input: '"rat", "car"', expected: 'false', type: 'normal' },
+      { input: '"a", "ab"', expected: 'false', type: 'edge' },
+      { input: '"listen", "silent"', expected: 'true', type: 'normal' }
     ]
   },
   {
@@ -252,10 +252,10 @@ Given a string \`s\`, return \`true\` if it is a palindrome, or \`false\` otherw
   // Write your solution here
 }`,
     testCases: [
-      { input: '["A man, a plan, a canal: Panama"]', expected: 'true', type: 'normal' },
-      { input: '["race a car"]', expected: 'false', type: 'normal' },
-      { input: '[" "]' , expected: 'true', type: 'boundary' },
-      { input: '["0P"]', expected: 'false', type: 'edge' }
+      { input: '"A man, a plan, a canal: Panama"', expected: 'true', type: 'normal' },
+      { input: '"race a car"', expected: 'false', type: 'normal' },
+      { input: '" "', expected: 'true', type: 'boundary' },
+      { input: '"0P"', expected: 'false', type: 'edge' }
     ]
   },
   {
@@ -289,10 +289,10 @@ If there is no common prefix, return an empty string \`""\`.`,
   // Write your solution here
 }`,
     testCases: [
-      { input: '[["flower","flow","flight"]]', expected: '"fl"', type: 'normal' },
-      { input: '[["dog","racecar","car"]]', expected: '""', type: 'normal' },
-      { input: '[["a"]]', expected: '"a"', type: 'boundary' },
-      { input: '[["cir","car"]]', expected: '"c"', type: 'edge' }
+      { input: '["flower","flow","flight"]', expected: '"fl"', type: 'normal' },
+      { input: '["dog","racecar","car"]', expected: '""', type: 'normal' },
+      { input: '["a"]', expected: '"a"', type: 'boundary' },
+      { input: '["cir","car"]', expected: '"c"', type: 'edge' }
     ]
   },
   {
@@ -331,12 +331,12 @@ An input string is valid if:
   // Write your solution here
 }`,
     testCases: [
-      { input: '["()"]', expected: 'true', type: 'normal' },
-      { input: '["()[]{}"]', expected: 'true', type: 'normal' },
-      { input: '["(]"]', expected: 'false', type: 'normal' },
-      { input: '["([)]"]', expected: 'false', type: 'edge' },
-      { input: '["{[]}"]', expected: 'true', type: 'normal' },
-      { input: '["("]', expected: 'false', type: 'boundary' }
+      { input: '"()"', expected: 'true', type: 'normal' },
+      { input: '"()[]{}"', expected: 'true', type: 'normal' },
+      { input: '"(]"', expected: 'false', type: 'normal' },
+      { input: '"([)]"', expected: 'false', type: 'edge' },
+      { input: '"{[]}"', expected: 'true', type: 'normal' },
+      { input: '"("', expected: 'false', type: 'boundary' }
     ]
   },
   {
@@ -372,10 +372,10 @@ You must write an algorithm with \`O(log n)\` runtime complexity.`,
   // Write your solution here
 }`,
     testCases: [
-      { input: '[[-1,0,3,5,9,12], 9]', expected: '4', type: 'normal' },
-      { input: '[[-1,0,3,5,9,12], 2]', expected: '-1', type: 'normal' },
-      { input: '[[5], 5]', expected: '0', type: 'boundary' },
-      { input: '[[5], 2]', expected: '-1', type: 'boundary' }
+      { input: '[-1,0,3,5,9,12], 9', expected: '4', type: 'normal' },
+      { input: '[-1,0,3,5,9,12], 2', expected: '-1', type: 'normal' },
+      { input: '[5], 5', expected: '0', type: 'boundary' },
+      { input: '[5], 2', expected: '-1', type: 'boundary' }
     ]
   },
   {
@@ -405,9 +405,9 @@ You must write an algorithm with \`O(log n)\` runtime complexity.`,
   // Write your solution here
 }`,
     testCases: [
-      { input: '[[1,2,3,4,5]]', expected: '[5,4,3,2,1]', type: 'normal' },
-      { input: '[[1,2]]', expected: '[2,1]', type: 'normal' },
-      { input: '[[]]', expected: '[]', type: 'boundary' }
+      { input: '[1,2,3,4,5]', expected: '[5,4,3,2,1]', type: 'normal' },
+      { input: '[1,2]', expected: '[2,1]', type: 'normal' },
+      { input: '[]', expected: '[]', type: 'boundary' }
     ]
   },
   {
@@ -440,9 +440,9 @@ The majority element is the element that appears more than \`⌊n / 2⌋\` times
   // Write your solution here
 }`,
     testCases: [
-      { input: '[[3,2,3]]', expected: '3', type: 'normal' },
-      { input: '[[2,2,1,1,1,2,2]]', expected: '2', type: 'normal' },
-      { input: '[[6,5,5]]', expected: '5', type: 'edge' }
+      { input: '[3,2,3]', expected: '3', type: 'normal' },
+      { input: '[2,2,1,1,1,2,2]', expected: '2', type: 'normal' },
+      { input: '[6,5,5]', expected: '5', type: 'edge' }
     ]
   },
   {
@@ -467,9 +467,9 @@ The majority element is the element that appears more than \`⌊n / 2⌋\` times
   // Write your solution here
 }`,
     testCases: [
-      { input: '[[1,2,3], [2,5,6]]', expected: '[1,2,2,3,5,6]', type: 'normal' },
-      { input: '[[], [1]]', expected: '[1]', type: 'boundary' },
-      { input: '[[0], [0]]', expected: '[0,0]', type: 'edge' }
+      { input: '[1,2,3], [2,5,6]', expected: '[1,2,2,3,5,6]', type: 'normal' },
+      { input: '[], [1]', expected: '[1]', type: 'boundary' },
+      { input: '[0], [0]', expected: '[0,0]', type: 'edge' }
     ]
   },
   {
@@ -501,9 +501,9 @@ Return the modified array.`,
   // Write your solution here
 }`,
     testCases: [
-      { input: '[[0,1,0,3,12]]', expected: '[1,3,12,0,0]', type: 'normal' },
-      { input: '[[0]]', expected: '[0]', type: 'boundary' },
-      { input: '[[1,2,3]]', expected: '[1,2,3]', type: 'edge' }
+      { input: '[0,1,0,3,12]', expected: '[1,3,12,0,0]', type: 'normal' },
+      { input: '[0]', expected: '[0]', type: 'boundary' },
+      { input: '[1,2,3]', expected: '[1,2,3]', type: 'edge' }
     ]
   },
   {
@@ -540,11 +540,11 @@ Return the modified array.`,
   // Write your solution here
 }`,
     testCases: [
-      { input: '["abcabcbb"]', expected: '3', type: 'normal' },
-      { input: '["bbbbb"]', expected: '1', type: 'normal' },
-      { input: '["pwwkew"]', expected: '3', type: 'normal' },
-      { input: '[""]', expected: '0', type: 'boundary' },
-      { input: '["au"]', expected: '2', type: 'edge' }
+      { input: '"abcabcbb"', expected: '3', type: 'normal' },
+      { input: '"bbbbb"', expected: '1', type: 'normal' },
+      { input: '"pwwkew"', expected: '3', type: 'normal' },
+      { input: '""', expected: '0', type: 'boundary' },
+      { input: '"au"', expected: '2', type: 'edge' }
     ]
   },
   {
@@ -577,9 +577,9 @@ You must implement a solution with a linear runtime complexity and use only cons
   // Write your solution here
 }`,
     testCases: [
-      { input: '[[2,2,1]]', expected: '1', type: 'normal' },
-      { input: '[[4,1,2,1,2]]', expected: '4', type: 'normal' },
-      { input: '[[1]]', expected: '1', type: 'boundary' }
+      { input: '[2,2,1]', expected: '1', type: 'normal' },
+      { input: '[4,1,2,1,2]', expected: '4', type: 'normal' },
+      { input: '[1]', expected: '1', type: 'boundary' }
     ]
   }
 ];
