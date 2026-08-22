@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Lightbulb, ChevronRight, CheckCircle2, Lock, Eye, BookOpen } from 'lucide-react';
+import { Lightbulb, ChevronRight, CheckCircle2, Lock, Eye, BookOpen, Volume2, Square } from 'lucide-react';
+import { speakText, stopSpeech } from '../utils/speech';
 
 export default function HintAccordion({ hints = [], fullExplanation = '' }) {
   const [revealedStep, setRevealedStep] = useState(0); // 0 = none revealed, 1 = hint 1, 2 = hint 2, 3 = hint 3, 4 = full explanation
+  const [speakingIndex, setSpeakingIndex] = useState(null); // null | index | 'walkthrough'
 
   const totalHints = hints.length;
 
@@ -13,7 +15,19 @@ export default function HintAccordion({ hints = [], fullExplanation = '' }) {
   };
 
   const handleReset = () => {
+    stopSpeech();
+    setSpeakingIndex(null);
     setRevealedStep(0);
+  };
+
+  const handleToggleSpeak = (text, indexKey) => {
+    if (speakingIndex === indexKey) {
+      stopSpeech();
+      setSpeakingIndex(null);
+    } else {
+      setSpeakingIndex(indexKey);
+      speakText(text, () => setSpeakingIndex(null));
+    }
   };
 
   return (
@@ -44,6 +58,7 @@ export default function HintAccordion({ hints = [], fullExplanation = '' }) {
         {hints.map((hintText, idx) => {
           const stepNum = idx + 1;
           const isRevealed = revealedStep >= stepNum;
+          const isCurrentlySpeaking = speakingIndex === idx;
 
           return (
             <div
@@ -61,10 +76,28 @@ export default function HintAccordion({ hints = [], fullExplanation = '' }) {
                   {isRevealed ? <Eye className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
                   Hint {stepNum}
                 </span>
+
                 {isRevealed && (
-                  <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-300 border border-amber-400/20">
-                    Revealed
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleToggleSpeak(hintText, idx)}
+                      className={`text-[11px] font-semibold px-2 py-0.5 rounded border flex items-center gap-1 transition-all ${
+                        isCurrentlySpeaking
+                          ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                          : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border-amber-500/30'
+                      }`}
+                    >
+                      {isCurrentlySpeaking ? (
+                        <>
+                          <Square className="w-3 h-3 fill-current" /> Stop
+                        </>
+                      ) : (
+                        <>
+                          <Volume2 className="w-3 h-3" /> Listen
+                        </>
+                      )}
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -92,7 +125,29 @@ export default function HintAccordion({ hints = [], fullExplanation = '' }) {
               }`}>
                 <BookOpen className="w-3.5 h-3.5" /> Full Walkthrough Explanation
               </span>
+
+              {revealedStep > totalHints && (
+                <button
+                  onClick={() => handleToggleSpeak(fullExplanation, 'walkthrough')}
+                  className={`text-[11px] font-semibold px-2 py-0.5 rounded border flex items-center gap-1 transition-all ${
+                    speakingIndex === 'walkthrough'
+                      ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                      : 'bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+                  }`}
+                >
+                  {speakingIndex === 'walkthrough' ? (
+                    <>
+                      <Square className="w-3 h-3 fill-current" /> Stop
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="w-3 h-3" /> Listen
+                    </>
+                  )}
+                </button>
+              )}
             </div>
+
             {revealedStep > totalHints ? (
               <p className="text-xs text-slate-200 leading-relaxed whitespace-pre-line">{fullExplanation}</p>
             ) : (

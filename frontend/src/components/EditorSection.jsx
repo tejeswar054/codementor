@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Editor from '@monaco-editor/react';
-import { Play, RotateCw, FileCode, MessageSquareText } from 'lucide-react';
+import { Play, RotateCw, FileCode, Settings, X } from 'lucide-react';
 
 const LANGUAGES = [
   { id: 'javascript', name: 'JavaScript', monacoId: 'javascript' },
@@ -20,6 +20,10 @@ export default function EditorSection({
   isLoading,
   hasAnalyzed,
 }) {
+  const [showSettings, setShowSettings] = useState(false);
+  const [editorTheme, setEditorTheme] = useState('vs-dark');
+  const [fontSize, setFontSize] = useState(13);
+
   const currentLangObj = LANGUAGES.find((l) => l.id === language) || LANGUAGES[0];
 
   return (
@@ -31,23 +35,82 @@ export default function EditorSection({
           <span className="text-sm font-semibold text-slate-200">Solution Code Editor</span>
         </div>
 
-        {/* Language Selector */}
-        <div className="flex items-center gap-2">
-          <label htmlFor="language-select" className="text-xs font-medium text-slate-400">Language:</label>
-          <select
-            id="language-select"
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            className="bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+        {/* Right Action Controls: Language & Settings */}
+        <div className="flex items-center gap-3">
+          {/* Language Selector */}
+          <div className="flex items-center gap-1.5">
+            <label htmlFor="language-select" className="text-xs font-medium text-slate-400">Language:</label>
+            <select
+              id="language-select"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+            >
+              {LANGUAGES.map((lang) => (
+                <option key={lang.id} value={lang.id}>
+                  {lang.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Settings Drawer Button */}
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className={`p-1.5 rounded-lg border transition-all ${
+              showSettings
+                ? 'bg-indigo-600 text-white border-indigo-500'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-400 border-slate-700'
+            }`}
+            title="Editor Settings"
           >
-            {LANGUAGES.map((lang) => (
-              <option key={lang.id} value={lang.id}>
-                {lang.name}
-              </option>
-            ))}
-          </select>
+            <Settings className="w-4 h-4" />
+          </button>
         </div>
       </div>
+
+      {/* Editor Settings Drawer Bar */}
+      {showSettings && (
+        <div className="bg-slate-950 border border-slate-800 rounded-lg p-3 flex flex-wrap items-center justify-between gap-4 text-xs animate-fade-in">
+          <div className="flex items-center gap-4">
+            {/* Theme Selector */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-400 font-medium">Theme:</span>
+              <select
+                value={editorTheme}
+                onChange={(e) => setEditorTheme(e.target.value)}
+                className="bg-slate-900 border border-slate-700 text-slate-200 rounded px-2 py-1 focus:outline-none"
+              >
+                <option value="vs-dark">VS Dark</option>
+                <option value="light">VS Light</option>
+              </select>
+            </div>
+
+            {/* Font Size Selector */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-400 font-medium">Font Size:</span>
+              <select
+                value={fontSize}
+                onChange={(e) => setFontSize(Number(e.target.value))}
+                className="bg-slate-900 border border-slate-700 text-slate-200 rounded px-2 py-1 focus:outline-none"
+              >
+                <option value={12}>12px</option>
+                <option value={13}>13px (Default)</option>
+                <option value={14}>14px</option>
+                <option value={16}>16px</option>
+                <option value={18}>18px</option>
+              </select>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setShowSettings(false)}
+            className="text-slate-500 hover:text-slate-300"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Monaco Editor Container */}
       <div className="flex flex-col gap-1.5">
@@ -62,10 +125,10 @@ export default function EditorSection({
             language={currentLangObj.monacoId}
             value={code}
             onChange={(value) => setCode(value || '')}
-            theme="vs-dark"
+            theme={editorTheme}
             options={{
               minimap: { enabled: false },
-              fontSize: 13,
+              fontSize: fontSize,
               scrollBeyondLastLine: false,
               automaticLayout: true,
               tabSize: 2,
