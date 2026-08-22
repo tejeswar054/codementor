@@ -225,6 +225,9 @@ export default function App() {
                 {/* Tab 2: Test Runner Panel */}
                 {activeTab === 'testrunner' && (
                   <TestRunnerPanel
+                    problemId={selectedProblem?.id}
+                    language={language}
+                    onApplyToEditor={handleApplyToEditor}
                     testResults={testResults}
                     isExecuting={isExecutingTests}
                     onRunTests={handleRunTests}

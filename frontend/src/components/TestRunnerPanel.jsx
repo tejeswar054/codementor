@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { Play, CheckCircle2, XCircle, Clock, Sparkles, Bot, ArrowRight, BookOpen, Check, Code2, Terminal } from 'lucide-react';
+import { Play, CheckCircle2, XCircle, Clock, Sparkles, Bot, ArrowRight, BookOpen, Check, Code2, Terminal, Zap } from 'lucide-react';
 import ComplexityBadge from './ComplexityBadge';
+import OptimalSolutionCard from './OptimalSolutionCard';
 
 export default function TestRunnerPanel({
+  problemId,
+  language,
+  onApplyToEditor,
   testResults,
   isExecuting,
   onRunTests,
@@ -17,6 +21,7 @@ export default function TestRunnerPanel({
 }) {
   const [activeTab, setActiveTab] = useState('suite'); // 'suite' | 'custom'
   const [customInputText, setCustomInputText] = useState('[2, 7, 11, 15], 9');
+  const [showOptimal, setShowOptimal] = useState(false);
 
   const allPassed = testResults && testResults.passed === testResults.total && testResults.total > 0;
   const failedResults = testResults?.results?.filter((r) => !r.passed) || [];
@@ -146,23 +151,45 @@ export default function TestRunnerPanel({
 
               {/* Solution Accepted Actions */}
               {allPassed && (
-                <div className="flex flex-col sm:flex-row items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => setShowOptimal(!showOptimal)}
+                    className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition-all ${
+                      showOptimal
+                        ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
+                        : 'bg-slate-900 hover:bg-slate-800 text-indigo-300 border-indigo-500/30'
+                    }`}
+                  >
+                    <Zap className="w-3.5 h-3.5 fill-current text-indigo-400" />
+                    <span>{showOptimal ? 'Hide Optimal Solution' : '⚡ Optimal Solution'}</span>
+                  </button>
+
                   <button
                     onClick={onViewAIExplanation}
-                    className="w-full sm:w-1/2 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-lg transition-all"
+                    className="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all"
                   >
-                    <BookOpen className="w-4 h-4" />
-                    <span>View AI Explanation</span>
+                    <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>AI Explanation</span>
                   </button>
 
                   <button
                     onClick={onBackToLibrary}
-                    className="w-full sm:w-1/2 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 shadow-lg transition-all"
+                    className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all ml-auto"
                   >
                     <span>Next Problem</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
+              )}
+
+              {/* Optimal Solution Modal Card */}
+              {allPassed && showOptimal && (
+                <OptimalSolutionCard
+                  problemId={problemId}
+                  language={language}
+                  onApplyToEditor={onApplyToEditor}
+                  onClose={() => setShowOptimal(false)}
+                />
               )}
 
               {/* Failed Tests Mentoring Callout */}
