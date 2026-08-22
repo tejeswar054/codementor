@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { PROBLEMS, TOPICS_LIST } from '../data/problems';
-import { Search, Filter, Code2, Sparkles, ChevronRight, BookOpen } from 'lucide-react';
+import { Search, Filter, Code2, Sparkles, ChevronRight, BookOpen, CheckCircle2 } from 'lucide-react';
 
-export default function ProblemLibrary({ onSelectProblem }) {
+export default function ProblemLibrary({ onSelectProblem, solvedProblemIds = [] }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('All');
   const [selectedTopic, setSelectedTopic] = useState('All Topics');
@@ -37,15 +37,19 @@ export default function ProblemLibrary({ onSelectProblem }) {
     }
   };
 
+  const solvedCount = solvedProblemIds.length;
+  const totalCount = PROBLEMS.length;
+  const progressPercent = Math.round((solvedCount / totalCount) * 100);
+
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
-      {/* Hero Welcome Banner */}
-      <div className="bg-gradient-to-r from-indigo-900/40 via-slate-900 to-slate-900 border border-indigo-500/20 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+      {/* Hero Welcome & Progress Banner */}
+      <div className="bg-gradient-to-r from-indigo-900/40 via-slate-900 to-slate-900 border border-indigo-500/20 rounded-2xl p-6 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <Code2 className="w-64 h-64 text-indigo-400" />
         </div>
 
-        <div className="relative z-10 max-w-2xl flex flex-col gap-2">
+        <div className="relative z-10 max-w-xl flex flex-col gap-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 w-fit">
             <Sparkles className="w-3.5 h-3.5" /> LeetCode-Style AI Mentor Catalog
           </div>
@@ -55,6 +59,25 @@ export default function ProblemLibrary({ onSelectProblem }) {
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
             Practice data structures & algorithms with step-by-step mentor guidance, progressive hints, and real sandboxed test executions.
           </p>
+        </div>
+
+        {/* Live Mastery Progress Card */}
+        <div className="relative z-10 w-full md:w-64 bg-slate-950/80 border border-slate-800 rounded-xl p-4 shrink-0 shadow-lg flex flex-col gap-2">
+          <div className="flex items-center justify-between text-xs font-bold">
+            <span className="text-slate-300">Mastery Progress</span>
+            <span className="text-emerald-400 font-mono">{solvedCount} / {totalCount} Solved</span>
+          </div>
+
+          <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-800">
+            <div
+              className="bg-gradient-to-r from-emerald-500 to-indigo-500 h-full rounded-full transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            ></div>
+          </div>
+
+          <span className="text-[11px] text-slate-400 text-right font-medium">
+            {progressPercent}% Complete
+          </span>
         </div>
       </div>
 
@@ -110,44 +133,57 @@ export default function ProblemLibrary({ onSelectProblem }) {
 
       {/* Problem Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredProblems.map((prob) => (
-          <div
-            key={prob.id}
-            onClick={() => onSelectProblem(prob)}
-            className="group bg-slate-900 border border-slate-800/90 hover:border-indigo-500/50 rounded-xl p-5 shadow-lg hover:shadow-indigo-500/10 transition-all flex flex-col justify-between cursor-pointer active:scale-[0.99]"
-          >
-            <div>
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <h3 className="text-base font-bold text-slate-100 group-hover:text-indigo-300 transition-colors line-clamp-1">
-                  {prob.title}
-                </h3>
-                <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded border shrink-0 ${getDifficultyBadge(prob.difficulty)}`}>
-                  {prob.difficulty}
-                </span>
-              </div>
+        {filteredProblems.map((prob) => {
+          const isSolved = solvedProblemIds.includes(prob.id);
 
-              <p className="text-xs text-slate-400 line-clamp-2 mb-4 leading-relaxed font-normal">
-                {prob.description.replace(/`/g, '')}
-              </p>
-            </div>
-
-            <div className="flex items-center justify-between pt-3 border-t border-slate-800/80">
-              {/* Topic Badges */}
-              <div className="flex flex-wrap items-center gap-1.5">
-                {prob.topics.map((t) => (
-                  <span key={t} className="text-[10px] px-2 py-0.5 rounded bg-slate-950 text-slate-400 border border-slate-800 font-medium">
-                    {t}
+          return (
+            <div
+              key={prob.id}
+              onClick={() => onSelectProblem(prob)}
+              className={`group bg-slate-900 border rounded-xl p-5 shadow-lg transition-all flex flex-col justify-between cursor-pointer active:scale-[0.99] ${
+                isSolved
+                  ? 'border-emerald-500/40 hover:border-emerald-500/70 hover:shadow-emerald-500/10'
+                  : 'border-slate-800/90 hover:border-indigo-500/50 hover:shadow-indigo-500/10'
+              }`}
+            >
+              <div>
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="flex items-center gap-2 line-clamp-1">
+                    {isSolved && (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    )}
+                    <h3 className="text-base font-bold text-slate-100 group-hover:text-indigo-300 transition-colors line-clamp-1">
+                      {prob.title}
+                    </h3>
+                  </div>
+                  <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded border shrink-0 ${getDifficultyBadge(prob.difficulty)}`}>
+                    {prob.difficulty}
                   </span>
-                ))}
+                </div>
+
+                <p className="text-xs text-slate-400 line-clamp-2 mb-4 leading-relaxed font-normal">
+                  {prob.description.replace(/`/g, '')}
+                </p>
               </div>
 
-              <div className="flex items-center gap-1 text-xs font-semibold text-indigo-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-2">
-                <span>Solve</span>
-                <ChevronRight className="w-4 h-4" />
+              <div className="flex items-center justify-between pt-3 border-t border-slate-800/80">
+                {/* Topic Badges */}
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {prob.topics.map((t) => (
+                    <span key={t} className="text-[10px] px-2 py-0.5 rounded bg-slate-950 text-slate-400 border border-slate-800 font-medium">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-1 text-xs font-semibold text-indigo-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-2">
+                  <span>{isSolved ? 'Review' : 'Solve'}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {filteredProblems.length === 0 && (
           <div className="col-span-full bg-slate-900/60 border border-slate-800 border-dashed rounded-xl p-12 text-center flex flex-col items-center justify-center gap-2">

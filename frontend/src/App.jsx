@@ -10,6 +10,7 @@ import LoadingSkeleton from './components/LoadingSkeleton';
 import ErrorBanner from './components/ErrorBanner';
 import { analyzeCodeAPI, executeCodeAPI } from './services/api';
 import { PROBLEMS } from './data/problems';
+import { getSolvedProblems, markProblemSolved } from './utils/storage';
 import { Terminal, Sparkles } from 'lucide-react';
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState('library'); // 'library' | 'workspace'
   const [selectedProblem, setSelectedProblem] = useState(PROBLEMS[0]);
   const [activeTab, setActiveTab] = useState('problem'); // 'problem' | 'testrunner' | 'mentor'
+  const [solvedProblemIds, setSolvedProblemIds] = useState(() => getSolvedProblems());
 
   // Code & Editor State
   const [language, setLanguage] = useState(PROBLEMS[0].language);
@@ -27,10 +29,12 @@ export default function App() {
   const [analysis, setAnalysis] = useState(null);
   const [previousAnalysis, setPreviousAnalysis] = useState(null);
   const [testResults, setTestResults] = useState(null);
+  const [customTestResult, setCustomTestResult] = useState(null);
 
   // Loading & Error States
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [isExecutingTests, setIsExecutingTests] = useState(false);
+  const [isExecutingCustom, setIsExecutingCustom] = useState(false);
   const [error, setError] = useState('');
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
 
@@ -52,6 +56,7 @@ export default function App() {
     setAnalysis(null);
     setPreviousAnalysis(null);
     setTestResults(null);
+    setCustomTestResult(null);
     setHasAnalyzed(false);
     setError('');
     setActiveTab('problem');
@@ -85,6 +90,12 @@ export default function App() {
       if (res.success) {
         setTestResults(res);
         setActiveTab('testrunner');
+
+        // Track problem mastery if all test cases passed
+        if (res.passed === res.total && res.total > 0) {
+          markProblemSolved(selectedProblem.id);
+          setSolvedProblemIds(getSolvedProblems());
+        }
       } else {
         throw new Error(res.error || 'Failed to execute test cases.');
       }
@@ -93,6 +104,37 @@ export default function App() {
       setError(err.message || 'An error occurred during test execution.');
     } finally {
       setIsExecutingTests(false);
+    }
+  };
+
+  // Run Custom Input Test Case
+  const handleRunCustomTest = async (customInput) => {
+    if (!code.trim()) {
+      setError('Please write or paste your solution before running custom test cases.');
+      return;
+    }
+
+    setIsExecutingCustom(true);
+    setError('');
+
+    try {
+      const res = await executeCodeAPI({
+        language,
+        code,
+        functionName: selectedProblem.functionName,
+        testCases: [{ input: customInput, expected: 'N/A', type: 'custom' }],
+      });
+
+      if (res.success) {
+        setCustomTestResult(res);
+      } else {
+        throw new Error(res.error || 'Failed to execute custom test case.');
+      }
+    } catch (err) {
+      console.error('Custom test execution error:', err);
+      setError(err.message || 'An error occurred during custom test execution.');
+    } finally {
+      setIsExecutingCustom(false);
     }
   };
 
@@ -153,7 +195,10 @@ export default function App() {
 
       {/* VIEW MODE 1: PROBLEM LIBRARY */}
       {viewMode === 'library' && (
-        <ProblemLibrary onSelectProblem={handleSelectProblem} />
+        <ProblemLibrary
+          onSelectProblem={handleSelectProblem}
+          solvedProblemIds={solvedProblemIds}
+        />
       )}
 
       {/* VIEW MODE 2: CODING WORKSPACE */}
@@ -183,6 +228,9 @@ export default function App() {
                     testResults={testResults}
                     isExecuting={isExecutingTests}
                     onRunTests={handleRunTests}
+                    onRunCustomTest={handleRunCustomTest}
+                    customTestResult={customTestResult}
+                    isExecutingCustom={isExecutingCustom}
                     onAskMentorForFailed={handleAskMentorForFailed}
                     onBackToLibrary={handleBackToLibrary}
                     onViewAIExplanation={() => setActiveTab('mentor')}
