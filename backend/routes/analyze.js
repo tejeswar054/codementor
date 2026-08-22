@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const geminiService = require('../services/geminiService');
+const { analyzeRateLimiter } = require('../middleware/rateLimiter');
 
 // Supported languages map
 const SUPPORTED_LANGUAGES = ['javascript', 'python', 'java', 'cpp', 'c++'];
@@ -8,8 +9,9 @@ const SUPPORTED_LANGUAGES = ['javascript', 'python', 'java', 'cpp', 'c++'];
 /**
  * POST /api/analyze
  * Body: { language: string, problem: string, code: string, previousAnalysis?: object }
+ * Protected by IP Rate Limiter: Max 2 requests per minute per IP
  */
-router.post('/analyze', async (req, res, next) => {
+router.post('/analyze', analyzeRateLimiter, async (req, res, next) => {
   try {
     const { language, problem, code, previousAnalysis, failedTestCases } = req.body;
 
