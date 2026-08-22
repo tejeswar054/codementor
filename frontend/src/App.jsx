@@ -34,12 +34,21 @@ export default function App() {
   const [error, setError] = useState('');
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
 
+  // Handle language switching and auto-load starter code template
+  const handleLanguageChange = (newLang) => {
+    setLanguage(newLang);
+    if (selectedProblem && selectedProblem.starterCodes && selectedProblem.starterCodes[newLang]) {
+      setCode(selectedProblem.starterCodes[newLang]);
+    }
+  };
+
   // Select problem from library catalog
   const handleSelectProblem = (prob) => {
     setSelectedProblem(prob);
-    setLanguage(prob.language || 'javascript');
+    const initialLang = prob.language || 'javascript';
+    setLanguage(initialLang);
     setProblemText(prob.description);
-    setCode(prob.starterCode);
+    setCode(prob.starterCodes ? prob.starterCodes[initialLang] || prob.starterCode : prob.starterCode);
     setAnalysis(null);
     setPreviousAnalysis(null);
     setTestResults(null);
@@ -212,7 +221,7 @@ export default function App() {
               <div className="lg:col-span-7 flex flex-col gap-4">
                 <EditorSection
                   language={language}
-                  setLanguage={setLanguage}
+                  setLanguage={handleLanguageChange}
                   problem={problemText}
                   setProblem={setProblemText}
                   code={code}

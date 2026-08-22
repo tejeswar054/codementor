@@ -1,6 +1,7 @@
 /**
  * Data-driven Problem Library for CodeMentor AI
  * Contains 16 curated LeetCode-style problems across Arrays, Strings, Stack, Searching, Linked List, Hashing, Sorting, Two Pointers, and Sliding Window.
+ * Supports JavaScript, Python, Java, and C++ starter code templates.
  */
 
 export const PROBLEMS = [
@@ -43,6 +44,30 @@ You can return the answer in any order.`,
     starterCode: `function twoSum(nums, target) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function twoSum(nums, target) {
+  // Write your solution here
+}`,
+      python: `def twoSum(nums: list[int], target: int) -> list[int]:
+    # Write your solution here
+    pass`,
+      java: `class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        // Write your solution here
+        return new int[]{};
+    }
+}`,
+      cpp: `#include <vector>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        // Write your solution here
+        return {};
+    }
+};`
+    },
     testCases: [
       { input: '[2,7,11,15], 9', expected: '[0,1]', type: 'normal' },
       { input: '[3,2,4], 6', expected: '[1,2]', type: 'normal' },
@@ -82,6 +107,30 @@ Return the maximum profit you can achieve from this transaction. If you cannot a
     starterCode: `function maxProfit(prices) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function maxProfit(prices) {
+  // Write your solution here
+}`,
+      python: `def maxProfit(prices: list[int]) -> int:
+    # Write your solution here
+    return 0`,
+      java: `class Solution {
+    public int maxProfit(int[] prices) {
+        // Write your solution here
+        return 0;
+    }
+}`,
+      cpp: `#include <vector>
+using namespace std;
+
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        // Write your solution here
+        return 0;
+    }
+};`
+    },
     testCases: [
       { input: '[7,1,5,3,6,4]', expected: '5', type: 'normal' },
       { input: '[7,6,4,3,1]', expected: '0', type: 'edge' },
@@ -119,6 +168,30 @@ A **subarray** is a contiguous non-empty sequence of elements within an array.`,
     starterCode: `function maxSubArray(nums) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function maxSubArray(nums) {
+  // Write your solution here
+}`,
+      python: `def maxSubArray(nums: list[int]) -> int:
+    # Write your solution here
+    return 0`,
+      java: `class Solution {
+    public int maxSubArray(int[] nums) {
+        // Write your solution here
+        return 0;
+    }
+}`,
+      cpp: `#include <vector>
+using namespace std;
+
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        // Write your solution here
+        return 0;
+    }
+};`
+    },
     testCases: [
       { input: '[-2,1,-3,4,-1,2,1,-5,4]', expected: '6', type: 'normal' },
       { input: '[1]', expected: '1', type: 'boundary' },
@@ -152,6 +225,30 @@ A **subarray** is a contiguous non-empty sequence of elements within an array.`,
     starterCode: `function containsDuplicate(nums) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function containsDuplicate(nums) {
+  // Write your solution here
+}`,
+      python: `def containsDuplicate(nums: list[int]) -> bool:
+    # Write your solution here
+    return False`,
+      java: `class Solution {
+    public boolean containsDuplicate(int[] nums) {
+        // Write your solution here
+        return false;
+    }
+}`,
+      cpp: `#include <vector>
+using namespace std;
+
+class Solution {
+public:
+    bool containsDuplicate(vector<int>& nums) {
+        // Write your solution here
+        return false;
+    }
+};`
+    },
     testCases: [
       { input: '[1,2,3,1]', expected: 'true', type: 'normal' },
       { input: '[1,2,3,4]', expected: 'false', type: 'normal' },
@@ -181,6 +278,30 @@ A **subarray** is a contiguous non-empty sequence of elements within an array.`,
     starterCode: `function findMax(nums) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function findMax(nums) {
+  // Write your solution here
+}`,
+      python: `def findMax(nums: list[int]) -> int:
+    # Write your solution here
+    return 0`,
+      java: `class Solution {
+    public int findMax(int[] nums) {
+        // Write your solution here
+        return 0;
+    }
+}`,
+      cpp: `#include <vector>
+using namespace std;
+
+class Solution {
+public:
+    int findMax(vector<int>& nums) {
+        // Write your solution here
+        return 0;
+    }
+};`
+    },
     testCases: [
       { input: '[3,7,2,9,5]', expected: '9', type: 'normal' },
       { input: '[-10,-5,-2,-50]', expected: '-2', type: 'edge' },
@@ -215,6 +336,30 @@ An **Anagram** is a word or phrase formed by rearranging the letters of a differ
     starterCode: `function isAnagram(s, t) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function isAnagram(s, t) {
+  // Write your solution here
+}`,
+      python: `def isAnagram(s: str, t: str) -> bool:
+    # Write your solution here
+    return False`,
+      java: `class Solution {
+    public boolean isAnagram(String s, String t) {
+        // Write your solution here
+        return false;
+    }
+}`,
+      cpp: `#include <string>
+using namespace std;
+
+class Solution {
+public:
+    bool isAnagram(string s, string t) {
+        // Write your solution here
+        return false;
+    }
+};`
+    },
     testCases: [
       { input: '"anagram", "nagaram"', expected: 'true', type: 'normal' },
       { input: '"rat", "car"', expected: 'false', type: 'normal' },
@@ -251,6 +396,30 @@ Given a string \`s\`, return \`true\` if it is a palindrome, or \`false\` otherw
     starterCode: `function isPalindrome(s) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function isPalindrome(s) {
+  // Write your solution here
+}`,
+      python: `def isPalindrome(s: str) -> bool:
+    # Write your solution here
+    return False`,
+      java: `class Solution {
+    public boolean isPalindrome(String s) {
+        // Write your solution here
+        return false;
+    }
+}`,
+      cpp: `#include <string>
+using namespace std;
+
+class Solution {
+public:
+    bool isPalindrome(string s) {
+        // Write your solution here
+        return false;
+    }
+};`
+    },
     testCases: [
       { input: '"A man, a plan, a canal: Panama"', expected: 'true', type: 'normal' },
       { input: '"race a car"', expected: 'false', type: 'normal' },
@@ -288,6 +457,31 @@ If there is no common prefix, return an empty string \`""\`.`,
     starterCode: `function longestCommonPrefix(strs) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function longestCommonPrefix(strs) {
+  // Write your solution here
+}`,
+      python: `def longestCommonPrefix(strs: list[str]) -> str:
+    # Write your solution here
+    return ""`,
+      java: `class Solution {
+    public String longestCommonPrefix(String[] strs) {
+        // Write your solution here
+        return "";
+    }
+}`,
+      cpp: `#include <vector>
+#include <string>
+using namespace std;
+
+class Solution {
+public:
+    string longestCommonPrefix(vector<string>& strs) {
+        // Write your solution here
+        return "";
+    }
+};`
+    },
     testCases: [
       { input: '["flower","flow","flight"]', expected: '"fl"', type: 'normal' },
       { input: '["dog","racecar","car"]', expected: '""', type: 'normal' },
@@ -330,6 +524,30 @@ An input string is valid if:
     starterCode: `function isValid(s) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function isValid(s) {
+  // Write your solution here
+}`,
+      python: `def isValid(s: str) -> bool:
+    # Write your solution here
+    return False`,
+      java: `class Solution {
+    public boolean isValid(String s) {
+        // Write your solution here
+        return false;
+    }
+}`,
+      cpp: `#include <string>
+using namespace std;
+
+class Solution {
+public:
+    bool isValid(string s) {
+        // Write your solution here
+        return false;
+    }
+};`
+    },
     testCases: [
       { input: '"()"', expected: 'true', type: 'normal' },
       { input: '"()[]{}"', expected: 'true', type: 'normal' },
@@ -371,6 +589,30 @@ You must write an algorithm with \`O(log n)\` runtime complexity.`,
     starterCode: `function search(nums, target) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function search(nums, target) {
+  // Write your solution here
+}`,
+      python: `def search(nums: list[int], target: int) -> int:
+    # Write your solution here
+    return -1`,
+      java: `class Solution {
+    public int search(int[] nums, int target) {
+        // Write your solution here
+        return -1;
+    }
+}`,
+      cpp: `#include <vector>
+using namespace std;
+
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        // Write your solution here
+        return -1;
+    }
+};`
+    },
     testCases: [
       { input: '[-1,0,3,5,9,12], 9', expected: '4', type: 'normal' },
       { input: '[-1,0,3,5,9,12], 2', expected: '-1', type: 'normal' },
@@ -404,6 +646,30 @@ You must write an algorithm with \`O(log n)\` runtime complexity.`,
     starterCode: `function reverseList(head) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function reverseList(head) {
+  // Write your solution here
+}`,
+      python: `def reverseList(head: list[int]) -> list[int]:
+    # Write your solution here
+    return []`,
+      java: `class Solution {
+    public int[] reverseList(int[] head) {
+        // Write your solution here
+        return new int[]{};
+    }
+}`,
+      cpp: `#include <vector>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> reverseList(vector<int>& head) {
+        // Write your solution here
+        return {};
+    }
+};`
+    },
     testCases: [
       { input: '[1,2,3,4,5]', expected: '[5,4,3,2,1]', type: 'normal' },
       { input: '[1,2]', expected: '[2,1]', type: 'normal' },
@@ -439,6 +705,30 @@ The majority element is the element that appears more than \`⌊n / 2⌋\` times
     starterCode: `function majorityElement(nums) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function majorityElement(nums) {
+  // Write your solution here
+}`,
+      python: `def majorityElement(nums: list[int]) -> int:
+    # Write your solution here
+    return 0`,
+      java: `class Solution {
+    public int majorityElement(int[] nums) {
+        // Write your solution here
+        return 0;
+    }
+}`,
+      cpp: `#include <vector>
+using namespace std;
+
+class Solution {
+public:
+    int majorityElement(vector<int>& nums) {
+        // Write your solution here
+        return 0;
+    }
+};`
+    },
     testCases: [
       { input: '[3,2,3]', expected: '3', type: 'normal' },
       { input: '[2,2,1,1,1,2,2]', expected: '2', type: 'normal' },
@@ -466,6 +756,30 @@ The majority element is the element that appears more than \`⌊n / 2⌋\` times
     starterCode: `function mergeSortedArrays(nums1, nums2) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function mergeSortedArrays(nums1, nums2) {
+  // Write your solution here
+}`,
+      python: `def mergeSortedArrays(nums1: list[int], nums2: list[int]) -> list[int]:
+    # Write your solution here
+    return []`,
+      java: `class Solution {
+    public int[] mergeSortedArrays(int[] nums1, int[] nums2) {
+        // Write your solution here
+        return new int[]{};
+    }
+}`,
+      cpp: `#include <vector>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> mergeSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+        // Write your solution here
+        return {};
+    }
+};`
+    },
     testCases: [
       { input: '[1,2,3], [2,5,6]', expected: '[1,2,2,3,5,6]', type: 'normal' },
       { input: '[], [1]', expected: '[1]', type: 'boundary' },
@@ -500,6 +814,30 @@ Return the modified array.`,
     starterCode: `function moveZeroes(nums) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function moveZeroes(nums) {
+  // Write your solution here
+}`,
+      python: `def moveZeroes(nums: list[int]) -> list[int]:
+    # Write your solution here
+    return []`,
+      java: `class Solution {
+    public int[] moveZeroes(int[] nums) {
+        // Write your solution here
+        return new int[]{};
+    }
+}`,
+      cpp: `#include <vector>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> moveZeroes(vector<int>& nums) {
+        // Write your solution here
+        return {};
+    }
+};`
+    },
     testCases: [
       { input: '[0,1,0,3,12]', expected: '[1,3,12,0,0]', type: 'normal' },
       { input: '[0]', expected: '[0]', type: 'boundary' },
@@ -539,6 +877,30 @@ Return the modified array.`,
     starterCode: `function lengthOfLongestSubstring(s) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function lengthOfLongestSubstring(s) {
+  // Write your solution here
+}`,
+      python: `def lengthOfLongestSubstring(s: str) -> int:
+    # Write your solution here
+    return 0`,
+      java: `class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        // Write your solution here
+        return 0;
+    }
+}`,
+      cpp: `#include <string>
+using namespace std;
+
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        // Write your solution here
+        return 0;
+    }
+};`
+    },
     testCases: [
       { input: '"abcabcbb"', expected: '3', type: 'normal' },
       { input: '"bbbbb"', expected: '1', type: 'normal' },
@@ -576,6 +938,30 @@ You must implement a solution with a linear runtime complexity and use only cons
     starterCode: `function singleNumber(nums) {
   // Write your solution here
 }`,
+    starterCodes: {
+      javascript: `function singleNumber(nums) {
+  // Write your solution here
+}`,
+      python: `def singleNumber(nums: list[int]) -> int:
+    # Write your solution here
+    return 0`,
+      java: `class Solution {
+    public int singleNumber(int[] nums) {
+        // Write your solution here
+        return 0;
+    }
+}`,
+      cpp: `#include <vector>
+using namespace std;
+
+class Solution {
+public:
+    int singleNumber(vector<int>& nums) {
+        // Write your solution here
+        return 0;
+    }
+};`
+    },
     testCases: [
       { input: '[2,2,1]', expected: '1', type: 'normal' },
       { input: '[4,1,2,1,2]', expected: '4', type: 'normal' },
