@@ -11,7 +11,7 @@ const SUPPORTED_LANGUAGES = ['javascript', 'python', 'java', 'cpp', 'c++'];
  */
 router.post('/analyze', async (req, res, next) => {
   try {
-    const { language, problem, code, previousAnalysis } = req.body;
+    const { language, problem, code, previousAnalysis, failedTestCases } = req.body;
 
     // 1. Validation: check presence and non-emptiness
     if (!language || typeof language !== 'string' || !language.trim()) {
@@ -48,7 +48,8 @@ router.post('/analyze', async (req, res, next) => {
       language: normLang,
       problem: problem.trim(),
       code: code.trim(),
-      previousAnalysis
+      previousAnalysis,
+      failedTestCases
     });
 
     // 3. Return structured response

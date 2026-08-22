@@ -1,35 +1,36 @@
-# CodeMentor AI
+# CodeMentor AI — AI-Powered LeetCode Coding Mentor
 
-> **AI Debugging Mentor for Students and Junior Developers**
+> **A Socratic, AI-powered LeetCode-style debugging and learning mentor for students and junior developers.**
 
-CodeMentor AI is an intelligent, developer-oriented code analysis tool designed to act as a supportive mentor rather than a simple answer generator. When a student or junior developer encounters bugs in their code, CodeMentor AI provides progressive hints, structured root-cause explanations, suggested code fixes, edge-case test case generation, and complexity analysis.
+CodeMentor AI transforms the traditional LeetCode experience. Instead of simply generating answers or dumping code, CodeMentor AI acts as a computer science mentor: it provides progressive hints, structured root-cause explanations, real sandboxed test case execution, targeted mentoring on failed test cases, and theoretical complexity analysis.
 
 ---
 
 ## 🚩 Problem
 
-When learning to code or debugging tricky logic, students and junior developers often encounter frustrating errors. Existing tools and generic LLM chats often dump complete corrected code solutions instantly. This hampers learning by skipping the critical problem-solving process required to build deep debugging intuition.
+When practicing algorithm challenges (LeetCode, HackerRank, etc.), students often hit a wall when a test case fails. Generic LLMs (like standard ChatGPT prompts) usually respond by dumping the full final solution immediately. This removes the problem-solving challenge required to build long-term debugging intuition.
 
 ## 💡 Solution
 
-**CodeMentor AI** bridges this gap by acting as a Socratic mentor:
-1. **Identifies Bugs & Explains Why**: Analyzes logic flaws and explains root causes clearly.
-2. **Progressive Hint System**: Reveals guidance step-by-step (Hint 1 → Hint 2 → Hint 3 → Full Explanation) so students can attempt fixing errors on their own first.
-3. **Non-Destructive Suggested Fixes**: Presents corrected code side-by-side or in a dedicated preview card without overwriting the user's working code editor.
-4. **Edge-Case Test Generation**: Automatically generates test cases (Normal, Edge, Boundary, Invalid) to help users test their implementations.
-5. **Re-Analysis Workflow**: Tracks code iterations and alerts the user whether their latest edits fixed the original issue or introduced new bugs.
+**CodeMentor AI** introduces a Socratic learning workflow:
+1. **Curated Problem Library**: Choose from a data-driven catalog of algorithms across Arrays, Strings, Stack, Searching, Linked Lists, Hashing, Sorting, Two Pointers, and Sliding Window.
+2. **Pre-Loaded Workspace**: Selecting a problem auto-populates the problem description, constraints, examples, and Monaco Editor starter code (`function twoSum(nums, target) { ... }`).
+3. **Deterministic Sandboxed Test Runner**: Click **▶ Run Test Cases** to execute user code in a safe, isolated Node.js `vm` sandbox environment with execution timeouts and memory boundaries. Returns exact Pass/Fail breakdown (`7/8 Passed`), actual vs expected output diffs, and execution timing.
+4. **Targeted AI Feedback on Failed Tests**: If a test case fails, click **Ask AI Mentor about Failed Tests**. Gemini analyzes *why* the user's logic produced that specific wrong actual output and provides targeted hints without spoiling the final answer.
+5. **Progressive Mentor Hints**: Interactive reveal mechanism (**Hint 1 → Hint 2 → Hint 3 → Full Walkthrough**).
+6. **Solution Accepted Banner**: When all tests pass, presents **🎉 SOLUTION ACCEPTED**, complexity breakdown, and "Try Another Problem".
 
 ---
 
 ## ✨ Features
 
-- 💻 **Monaco Code Editor**: Professional code editing experience powered by `@monaco-editor/react`.
-- 🌐 **Multi-Language Support**: Full support for JavaScript, Python, Java, and C++ with dynamic editor syntax highlighting.
-- 💡 **Progressive Mentor Hints**: Interactive reveal mechanism (Hint 1, Hint 2, Hint 3, and Full Walkthrough).
-- 🧪 **Smart Test Case Generator**: Generates normal, edge, boundary, and invalid input test cases with clear justifications.
-- ⏱️ **Time & Space Complexity Analysis**: Calculates theoretical runtime ($O(N)$) and space bounds for submitted code.
-- 🔄 **Iterative Re-Analysis**: Evaluates modified code versions and confirms if previous bugs are resolved.
-- ⚡ **Preset Buggy Snippets**: 1-click sample buggy programs in JavaScript, Python, Java, and C++ for instant demonstration.
+- 📚 **Data-Driven Problem Catalog**: 16 curated LeetCode-style problems with search, difficulty filters (Easy/Medium/Hard), and topic tags.
+- 💻 **Monaco Code Editor**: Professional code editor with syntax highlighting and automatic starter code injection.
+- 🧪 **Deterministic Sandbox Execution**: Fast, safe isolated VM runner executing user solution code against test cases with execution timing (`1.09ms`).
+- 🎯 **Targeted AI Mentoring**: Mentors users specifically on failed test case inputs and expected/actual mismatches.
+- 💡 **Progressive Mentor Hints**: Step-by-step hint reveal system.
+- ⏱️ **Complexity Breakdown**: Theoretical Time ($O(N)$) and Space ($O(1)$) complexity calculations.
+- ⚙️ **Dual Execution Architecture**: Defaults to safe local VM Sandbox; seamlessly delegates to Judge0 API when `JUDGE0_API_KEY` is configured in `.env`.
 
 ---
 
@@ -44,34 +45,31 @@ When learning to code or debugging tricky logic, students and junior developers 
 
 ### Backend
 - **Runtime**: Node.js + Express
-- **AI Integration**: `@google/genai` (Gemini 2.5 Flash API)
-- **Environment Management**: `dotenv`
-- **Security & Middleware**: `cors`, request validation middleware, structured response schemas
+- **AI Integration**: `@google/generative-ai` (Gemini 2.5 Flash API)
+- **Execution Engine**: Isolated Node.js `vm` Sandbox + optional Judge0 API integration
+- **Middleware**: `cors`, `dotenv`, request validation middleware
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-[ User UI: Monaco Editor + React ]
-               │
-          HTTP POST /api/analyze
-               │
-               ▼
-[ Express Server & Request Validator ]
-               │
-          Service Call
-               │
-               ▼
-[ Gemini API (gemini-2.5-flash) ]  ◄── Server-side GEMINI_API_KEY (Strictly Isolated)
-               │
-     Structured JSON Schema
-               │
-               ▼
-[ Validated & Sanitized Response ]
-               │
-               ▼
-[ Interactive UI: Progressive Hints & Test Cases ]
+[ Problem Library Catalog ]
+           │ (User Selects Problem)
+           ▼
+[ LeetCode Coding Workspace ]
+    ├── Left: Problem Description, Constraints & Examples
+    ├── Center: Monaco Editor (Starter Code Pre-Loaded)
+    └── Right/Bottom: AI Mentor Panel & Test Runner Output
+           │
+ ┌─────────┴────────────────────────┐
+ │                                  │
+ ▼                                  ▼
+[ POST /api/execute ]        [ POST /api/analyze ]
+ └── Safe `vm` Sandbox         └── Gemini AI Mentor
+      - 1000ms Timeout              - Progressive Hints
+      - Pass/Fail Results           - Failed Test Targeted Feedback
+      - Execution Time              - Solution Complexity
 ```
 
 ---
@@ -79,8 +77,7 @@ When learning to code or debugging tricky logic, students and junior developers 
 ## 🚀 Setup & Installation
 
 ### Prerequisites
-- Node.js (v18 or higher recommended)
-- npm or yarn
+- Node.js (v18 or higher)
 - Google Gemini API Key
 
 ### Step-by-Step Setup
@@ -96,20 +93,22 @@ When learning to code or debugging tricky logic, students and junior developers 
    ```bash
    cp .env.example .env
    ```
-   Add your Gemini API Key in `.env`:
+   Add your keys to `.env`:
    ```env
    GEMINI_API_KEY=your_gemini_api_key_here
+   CODE_EXECUTION_MODE=sandbox
+   # Optional Judge0 credentials:
+   JUDGE0_API_URL=https://judge0-ce.p.rapidapi.com
+   JUDGE0_API_KEY=your_rapidapi_key_here
    PORT=5000
    ```
 
 3. **Install Dependencies**:
-   Install root, backend, and frontend dependencies:
    ```bash
    npm run install:all
    ```
 
 4. **Run the Application**:
-   Start both backend and frontend concurrently:
    ```bash
    npm run dev
    ```
@@ -119,29 +118,8 @@ When learning to code or debugging tricky logic, students and junior developers 
 
 ---
 
-## 🤖 AI Usage & Integration
+## 🔒 Security & Sandbox Execution
 
-### How AI was used during development
-AI assist was leveraged for architectural design, system prompt engineering, response schema definitions, and building responsive React components.
-
-### How AI works inside CodeMentor AI
-- **Isolated Backend Service**: The frontend never communicates directly with Google Gemini. All requests flow through `backend/services/geminiService.js`.
-- **System Prompt & Role Directives**: Gemini is configured with a system prompt specifying the persona of an expert computer science mentor.
-- **Structured JSON Schema**: Uses schema enforcement to guarantee consistent JSON structure (`summary`, `bugFound`, `bugExplanation`, `hints`, `suggestedFix`, `testCases`, `complexity`, `fixStatus`).
-- **Sanitizing & Fallbacks**: The backend validates and sanitizes every AI response before delivering it to the client.
-
----
-
-## ⚠️ Limitations
-
-- **No Code Execution**: For security and speed, this MVP performs static AI analysis and does not run user code in an isolated sandbox.
-- **Stateless Persistence**: Sessions are kept in client state without requiring a database, matching sprint requirements.
-
----
-
-## 🔮 Future Improvements
-
-- 🧪 **Sandboxed Code Runner**: Integrate Pyodide / WebAssembly / Docker execution environments for live test case execution.
-- 🔐 **User Accounts & Session Saved History**: Save debugging history across learning sessions.
-- 📊 **Skill Progress Analytics**: Track common student mistakes and highlight learning growth over time.
-- 💬 **Interactive Follow-up Chat**: Allow students to ask specific follow-up questions regarding hints.
+- **No Server Host Execution**: User submissions are never executed directly via `eval()` or `child_process.exec()` on the host OS.
+- **Node.js VM Sandbox**: Executed in a fresh `vm.createContext()` with disabled system access (`fs`, `net`, `process` are blocked) and a 1000ms execution timeout guard against infinite loops.
+- **Server Key Protection**: `GEMINI_API_KEY` and `JUDGE0_API_KEY` are isolated server-side.

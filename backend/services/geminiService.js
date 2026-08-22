@@ -14,14 +14,15 @@ class GeminiService {
   }
 
   /**
-   * Analyze submitted code and problem description
+   * Analyze submitted code, problem description, and optional failed test cases
    * @param {Object} params
    * @param {string} params.language
    * @param {string} params.problem
    * @param {string} params.code
    * @param {Object} [params.previousAnalysis]
+   * @param {Array} [params.failedTestCases]
    */
-  async analyzeCode({ language, problem, code, previousAnalysis }) {
+  async analyzeCode({ language, problem, code, previousAnalysis, failedTestCases }) {
     if (!process.env.GEMINI_API_KEY) {
       throw new Error('GEMINI_API_KEY is missing on the server. Please check your .env configuration.');
     }
@@ -31,24 +32,24 @@ class GeminiService {
     }
 
     const systemInstruction = `
-You are CodeMentor AI, an expert programming mentor helping students and junior developers debug code.
-Your goal is to act as a mentor: guide the user through clear root-cause explanations, progressive hints, test case generation, and complexity analysis.
+You are CodeMentor AI, an expert computer science mentor helping students debug LeetCode-style algorithms.
+Your goal is to act as a Socratic mentor: guide the user through clear root-cause explanations, progressive hints, test case generation, and complexity analysis.
 
-CRITICAL RULES:
-1. Focus strictly on the supplied code and problem statement.
-2. Do not invent errors if none exist.
-3. If the code is already correct, set bugFound to false, provide encouraging hints, and explain why the code is optimal.
-4. If previous analysis is provided, compare the new code against the previous bug to determine if it is fixed.
+CRITICAL MENTORING RULES:
+1. Focus strictly on the supplied code, problem statement, and test case feedback.
+2. If failed test case information is provided, analyze WHY the user's code produces the incorrect actual output for that specific input.
+3. Do NOT immediately dump the complete final answer. Provide progressive hints (Hint 1: High level direction; Hint 2: Specific logic flaw location; Hint 3: Actionable structural pointer).
+4. If the code passes all tests or is already optimal, set bugFound to false and explain why the logic is clean.
 5. Return ONLY a valid JSON object matching the requested schema. No markdown text outside the JSON.
 
 JSON SCHEMA:
 {
-  "summary": "Short 1-line summary of findings",
+  "summary": "Short 1-line summary of findings (e.g. 'Fails on duplicate elements boundary test')",
   "bugFound": true,
-  "bugExplanation": "Clear explanation of the problem and why it happens",
+  "bugExplanation": "Clear explanation of the logic flaw causing the test failure or issue",
   "hints": [
     "Hint 1: High-level pointer without giving away the exact solution",
-    "Hint 2: Specific logic flaw location or variable concept",
+    "Hint 2: Specific logic flaw location or edge-case concept",
     "Hint 3: Direct actionable suggestion for how to structure the fix"
   ],
   "fullExplanation": "Detailed step-by-step walkthrough of the root cause and why the fix works",
@@ -62,14 +63,8 @@ JSON SCHEMA:
     },
     {
       "name": "Edge Case",
-      "input": "Sample edge input (duplicates, negative values, 1-element arrays, etc)",
+      "input": "Sample edge input",
       "expectedOutput": "Expected output",
-      "reason": "Why this test case matters"
-    },
-    {
-      "name": "Boundary Case",
-      "input": "Boundary conditions (empty input, max integer, etc)",
-      "expectedOutput": "Expected output or Exception handling",
       "reason": "Why this test case matters"
     }
   ],
@@ -77,36 +72,48 @@ JSON SCHEMA:
     "time": "O(...) explanation",
     "space": "O(...) explanation"
   },
-  "fixStatus": "Bug appears to be fixed."
+  "fixStatus": "Original issue appears to be resolved."
 }
 `;
 
     let prompt = `
 ${systemInstruction}
 
-[SUBMITTED CODE DETAILS]
+[PROBLEM STATEMENT & CONSTRAINTS]
 Language: ${language}
-Problem Statement:
+Problem Description:
 ${problem}
 
-Code to Analyze:
+[SUBMITTED CODE]
 \`\`\`${language}
 ${code}
 \`\`\`
 `;
 
-    if (previousAnalysis) {
+    if (failedTestCases && failedTestCases.length > 0) {
       prompt += `
-[PREVIOUS ANALYSIS CONTEXT]
-Previous Bug Explanation: ${previousAnalysis.bugExplanation || 'N/A'}
-Previous Summary: ${previousAnalysis.summary || 'N/A'}
-Please check if the user's updated code resolves the previous bug, and set "fixStatus" accordingly (e.g. "Bug appears to be fixed." or "Original bug persists.").
+[ACTUAL TEST RUN FAILURE FEEDBACK]
+The user ran test cases on their solution and the following test case(s) FAILED:
+${failedTestCases.map((ft, idx) => `
+Failed Test #${idx + 1}:
+Input: ${ft.input}
+Expected Output: ${ft.expected}
+Actual Output Received: ${ft.actual}
+`).join('\n')}
+
+Please analyze why the user's code produced "${failedTestCases[0].actual}" instead of "${failedTestCases[0].expected}", and provide targeted mentor guidance.
 `;
     }
 
-    // List of model candidates in order of preference
-    const modelCandidates = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-exp'];
+    if (previousAnalysis) {
+      prompt += `
+[PREVIOUS ANALYSIS CONTEXT]
+Previous Summary: ${previousAnalysis.summary || 'N/A'}
+Previous Bug Explanation: ${previousAnalysis.bugExplanation || 'N/A'}
+`;
+    }
 
+    const modelCandidates = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-exp'];
     let lastError = null;
 
     for (const modelName of modelCandidates) {
@@ -165,19 +172,12 @@ Please check if the user's updated code resolves the previous bug, and set "fixS
         : ['Check your loop bounds and indices.', 'Verify variable initializations.'],
       fullExplanation: json.fullExplanation || json.bugExplanation || 'Walkthrough completed.',
       suggestedFix: json.suggestedFix || code,
-      testCases: Array.isArray(json.testCases) ? json.testCases : [
-        {
-          name: 'Normal Case',
-          input: 'Standard input array/arguments',
-          expectedOutput: 'Expected solution output',
-          reason: 'Validates basic correct execution'
-        }
-      ],
+      testCases: Array.isArray(json.testCases) ? json.testCases : [],
       complexity: {
-        time: json.complexity?.time || 'Not specified',
-        space: json.complexity?.space || 'Not specified'
+        time: json.complexity?.time || 'O(N)',
+        space: json.complexity?.space || 'O(1)'
       },
-      fixStatus: json.fixStatus || (json.bugFound ? 'Issue detected in code.' : 'Code appears to be working correctly.')
+      fixStatus: json.fixStatus || (json.bugFound ? 'Issue detected in solution.' : 'Solution appears correct.')
     };
   }
 }

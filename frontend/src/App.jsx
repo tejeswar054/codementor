@@ -1,54 +1,111 @@
 import React, { useState } from 'react';
 import Header from './components/Header';
-import PresetSelector, { SAMPLE_PRESETS } from './components/PresetSelector';
+import ProblemLibrary from './components/ProblemLibrary';
+import WorkspaceHeader from './components/WorkspaceHeader';
+import ProblemDetails from './components/ProblemDetails';
 import EditorSection from './components/EditorSection';
 import AnalysisSection from './components/AnalysisSection';
+import TestRunnerPanel from './components/TestRunnerPanel';
 import LoadingSkeleton from './components/LoadingSkeleton';
 import ErrorBanner from './components/ErrorBanner';
-import { analyzeCodeAPI } from './services/api';
-import { Sparkles, Terminal } from 'lucide-react';
+import { analyzeCodeAPI, executeCodeAPI } from './services/api';
+import { PROBLEMS } from './data/problems';
+import { Terminal, Sparkles } from 'lucide-react';
 
 export default function App() {
-  // Initial state loaded with TwoSum demo preset
-  const defaultPreset = SAMPLE_PRESETS[0];
+  // Navigation & Problem State
+  const [viewMode, setViewMode] = useState('library'); // 'library' | 'workspace'
+  const [selectedProblem, setSelectedProblem] = useState(PROBLEMS[0]);
+  const [activeTab, setActiveTab] = useState('problem'); // 'problem' | 'testrunner' | 'mentor'
 
-  const [language, setLanguage] = useState(defaultPreset.language);
-  const [problem, setProblem] = useState(defaultPreset.problem);
-  const [code, setCode] = useState(defaultPreset.code);
+  // Code & Editor State
+  const [language, setLanguage] = useState(PROBLEMS[0].language);
+  const [problemText, setProblemText] = useState(PROBLEMS[0].description);
+  const [code, setCode] = useState(PROBLEMS[0].starterCode);
 
+  // Analysis & Test Results State
   const [analysis, setAnalysis] = useState(null);
   const [previousAnalysis, setPreviousAnalysis] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [testResults, setTestResults] = useState(null);
+
+  // Loading & Error States
+  const [isLoadingAI, setIsLoadingAI] = useState(false);
+  const [isExecutingTests, setIsExecutingTests] = useState(false);
   const [error, setError] = useState('');
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
 
-  // Handle Preset selection
-  const handleSelectPreset = (preset) => {
-    setLanguage(preset.language);
-    setProblem(preset.problem);
-    setCode(preset.code);
+  // Select problem from library catalog
+  const handleSelectProblem = (prob) => {
+    setSelectedProblem(prob);
+    setLanguage(prob.language || 'javascript');
+    setProblemText(prob.description);
+    setCode(prob.starterCode);
+    setAnalysis(null);
+    setPreviousAnalysis(null);
+    setTestResults(null);
+    setHasAnalyzed(false);
+    setError('');
+    setActiveTab('problem');
+    setViewMode('workspace');
+  };
+
+  // Back to problem library
+  const handleBackToLibrary = () => {
+    setViewMode('library');
     setError('');
   };
 
-  // Main analyze submission handler
-  const handleAnalyze = async () => {
-    if (!code.trim() || !problem.trim()) {
-      setError('Please provide both a problem description and source code before analyzing.');
+  // Run Test Cases against execution engine sandbox
+  const handleRunTests = async () => {
+    if (!code.trim()) {
+      setError('Please write or paste your solution before running test cases.');
       return;
     }
 
-    setIsLoading(true);
+    setIsExecutingTests(true);
     setError('');
 
     try {
-      // Store current analysis as previous context if re-analyzing
+      const res = await executeCodeAPI({
+        language,
+        code,
+        functionName: selectedProblem.functionName,
+        testCases: selectedProblem.testCases,
+      });
+
+      if (res.success) {
+        setTestResults(res);
+        setActiveTab('testrunner');
+      } else {
+        throw new Error(res.error || 'Failed to execute test cases.');
+      }
+    } catch (err) {
+      console.error('Test execution error:', err);
+      setError(err.message || 'An error occurred during test execution.');
+    } finally {
+      setIsExecutingTests(false);
+    }
+  };
+
+  // AI Mentor Analysis handler
+  const handleAnalyze = async (failedCases = null) => {
+    if (!code.trim()) {
+      setError('Please write or paste your solution before requesting AI analysis.');
+      return;
+    }
+
+    setIsLoadingAI(true);
+    setError('');
+
+    try {
       const currentPrev = analysis ? analysis : previousAnalysis;
 
       const result = await analyzeCodeAPI({
         language,
-        problem,
+        problem: selectedProblem ? selectedProblem.description : problemText,
         code,
         previousAnalysis: currentPrev,
+        failedTestCases: failedCases || undefined,
       });
 
       if (result.success && result.analysis) {
@@ -57,6 +114,7 @@ export default function App() {
         }
         setAnalysis(result.analysis);
         setHasAnalyzed(true);
+        setActiveTab('mentor');
       } else {
         throw new Error(result.error || 'Failed to analyze code.');
       }
@@ -64,11 +122,16 @@ export default function App() {
       console.error('Analysis error:', err);
       setError(err.message || 'An error occurred while connecting to the AI Mentor service.');
     } finally {
-      setIsLoading(false);
+      setIsLoadingAI(false);
     }
   };
 
-  // Handler for "Apply to Editor" from suggested fix
+  // Ask AI Mentor specifically about failed test cases
+  const handleAskMentorForFailed = (failedResults) => {
+    handleAnalyze(failedResults);
+  };
+
+  // Apply suggested fix to Monaco editor
   const handleApplyToEditor = (fixedCode) => {
     if (fixedCode) {
       setCode(fixedCode);
@@ -76,65 +139,96 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-      <Header />
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+      <Header onHome={handleBackToLibrary} />
 
-      <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex-1 flex flex-col gap-6">
-        {/* Preset Selector Header */}
-        <PresetSelector onSelectPreset={handleSelectPreset} />
+      {/* VIEW MODE 1: PROBLEM LIBRARY */}
+      {viewMode === 'library' && (
+        <ProblemLibrary onSelectProblem={handleSelectProblem} />
+      )}
 
-        {/* Main 2-Column Responsive Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Input & Editor */}
-          <div className="lg:col-span-6 flex flex-col gap-4">
-            <EditorSection
-              language={language}
-              setLanguage={setLanguage}
-              problem={problem}
-              setProblem={setProblem}
-              code={code}
-              setCode={setCode}
-              onAnalyze={handleAnalyze}
-              isLoading={isLoading}
-              hasAnalyzed={hasAnalyzed}
-            />
-          </div>
+      {/* VIEW MODE 2: CODING WORKSPACE */}
+      {viewMode === 'workspace' && (
+        <>
+          <WorkspaceHeader
+            problem={selectedProblem}
+            onBack={handleBackToLibrary}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
 
-          {/* Right Column: Analysis Results / Skeleton / Empty State */}
-          <div className="lg:col-span-6 flex flex-col gap-4">
-            {error && <ErrorBanner message={error} onRetry={handleAnalyze} />}
-
-            {isLoading && <LoadingSkeleton />}
-
-            {!isLoading && analysis && (
-              <AnalysisSection
-                analysis={analysis}
-                onApplyToEditor={handleApplyToEditor}
-                language={language}
-              />
-            )}
-
-            {!isLoading && !analysis && !error && (
-              <div className="bg-slate-900/60 border border-slate-800 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center gap-3 min-h-[480px]">
-                <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl text-indigo-400">
-                  <Terminal className="w-8 h-8" />
-                </div>
-                <h3 className="text-base font-bold text-slate-200">Ready to Analyze</h3>
-                <p className="text-xs text-slate-400 max-w-md leading-relaxed">
-                  Enter your problem description, select your programming language, and paste your code on the left. Click <strong className="text-indigo-400">Analyze Code</strong> to receive mentor guidance, progressive hints, edge cases, and suggested fixes.
-                </p>
-                <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-2">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Socratic debugging mode active</span>
-                </div>
+          <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex-1 flex flex-col gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Left Column: Monaco Editor */}
+              <div className="lg:col-span-7 flex flex-col gap-4">
+                <EditorSection
+                  language={language}
+                  setLanguage={setLanguage}
+                  problem={problemText}
+                  setProblem={setProblemText}
+                  code={code}
+                  setCode={setCode}
+                  onAnalyze={() => handleAnalyze()}
+                  isLoading={isLoadingAI}
+                  hasAnalyzed={hasAnalyzed}
+                />
               </div>
-            )}
-          </div>
-        </div>
-      </main>
+
+              {/* Right Column: Problem Details / Test Runner / AI Mentor */}
+              <div className="lg:col-span-5 flex flex-col gap-4">
+                {error && <ErrorBanner message={error} onRetry={handleRunTests} />}
+
+                {/* Tab 1: Problem Details */}
+                {activeTab === 'problem' && (
+                  <ProblemDetails problem={selectedProblem} />
+                )}
+
+                {/* Tab 2: Test Runner Panel */}
+                {activeTab === 'testrunner' && (
+                  <TestRunnerPanel
+                    testResults={testResults}
+                    isExecuting={isExecutingTests}
+                    onRunTests={handleRunTests}
+                    onAskMentorForFailed={handleAskMentorForFailed}
+                    onBackToLibrary={handleBackToLibrary}
+                    isLoadingAI={isLoadingAI}
+                  />
+                )}
+
+                {/* Tab 3: AI Mentor Panel */}
+                {activeTab === 'mentor' && (
+                  <>
+                    {isLoadingAI && <LoadingSkeleton />}
+
+                    {!isLoadingAI && analysis && (
+                      <AnalysisSection
+                        analysis={analysis}
+                        onApplyToEditor={handleApplyToEditor}
+                        language={language}
+                      />
+                    )}
+
+                    {!isLoadingAI && !analysis && (
+                      <div className="bg-slate-900/60 border border-slate-800 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center gap-3 min-h-[420px]">
+                        <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl text-indigo-400">
+                          <Terminal className="w-8 h-8" />
+                        </div>
+                        <h3 className="text-base font-bold text-slate-200">AI Mentor Ready</h3>
+                        <p className="text-xs text-slate-400 max-w-md leading-relaxed">
+                          Click <strong className="text-indigo-400">Analyze Code</strong> or <strong className="text-emerald-400">Run Test Cases</strong> to receive progressive mentor hints, edge case analysis, and test feedback.
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </main>
+        </>
+      )}
 
       <footer className="border-t border-slate-800/80 bg-slate-900/40 py-4 text-center text-xs text-slate-500">
-        <p>CodeMentor AI — Full-Stack AI Debugging Mentor • Built with React, Express & Gemini API</p>
+        <p>CodeMentor AI — Full-Stack LeetCode-Style AI Mentor • Built with React, Express, Gemini API & Safe Sandbox</p>
       </footer>
     </div>
   );

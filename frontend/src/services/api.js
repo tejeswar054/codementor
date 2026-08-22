@@ -5,7 +5,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 45000, // 45 seconds max timeout for Gemini AI analysis
+  timeout: 45000, // 45 seconds max timeout
 });
 
 /**
@@ -15,14 +15,16 @@ const api = axios.create({
  * @param {string} data.problem
  * @param {string} data.code
  * @param {Object} [data.previousAnalysis]
+ * @param {Array} [data.failedTestCases]
  */
-export const analyzeCodeAPI = async ({ language, problem, code, previousAnalysis }) => {
+export const analyzeCodeAPI = async ({ language, problem, code, previousAnalysis, failedTestCases }) => {
   try {
     const response = await api.post('/analyze', {
       language,
       problem,
       code,
       previousAnalysis,
+      failedTestCases,
     });
     return response.data;
   } catch (error) {
@@ -32,6 +34,34 @@ export const analyzeCodeAPI = async ({ language, problem, code, previousAnalysis
       throw new Error('Network error: Unable to connect to backend server. Please verify backend is running on port 5000.');
     } else {
       throw new Error(error.message || 'Failed to submit analysis request.');
+    }
+  }
+};
+
+/**
+ * Send code execution request to backend sandbox
+ * @param {Object} data
+ * @param {string} data.language
+ * @param {string} data.code
+ * @param {string} data.functionName
+ * @param {Array} data.testCases
+ */
+export const executeCodeAPI = async ({ language, code, functionName, testCases }) => {
+  try {
+    const response = await api.post('/execute', {
+      language,
+      code,
+      functionName,
+      testCases,
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.data.error || 'Server error occurred during test execution.');
+    } else if (error.request) {
+      throw new Error('Network error: Unable to connect to execution engine.');
+    } else {
+      throw new Error(error.message || 'Failed to execute test cases.');
     }
   }
 };
