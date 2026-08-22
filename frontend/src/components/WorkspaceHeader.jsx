@@ -1,7 +1,15 @@
 import React from 'react';
-import { ArrowLeft, Sparkles, Code2, BookOpen, TestTube2, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Sparkles, BookOpen, TestTube2, MessageSquare, RotateCw } from 'lucide-react';
 
-export default function WorkspaceHeader({ problem, onBack, activeTab, setActiveTab }) {
+export default function WorkspaceHeader({
+  problem,
+  onBack,
+  activeTab,
+  setActiveTab,
+  onAnalyze,
+  isLoadingAI,
+  hasAnalyzed,
+}) {
   if (!problem) return null;
 
   const getDifficultyBadge = (difficulty = '') => {
@@ -38,8 +46,8 @@ export default function WorkspaceHeader({ problem, onBack, activeTab, setActiveT
           </div>
         </div>
 
-        {/* Right: Tab Navigation */}
-        <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
+        {/* Right: Tab Navigation & Analyze Code CTA (Placed between Test Runner & AI Mentor) */}
+        <div className="flex flex-wrap items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
           <button
             onClick={() => setActiveTab('problem')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium transition-all ${
@@ -63,6 +71,36 @@ export default function WorkspaceHeader({ problem, onBack, activeTab, setActiveT
             <TestTube2 className="w-3.5 h-3.5" />
             <span>Test Runner</span>
           </button>
+
+          {/* Analyze Code CTA Button - Positioned directly between Test Runner and AI Mentor */}
+          {onAnalyze && (
+            <button
+              onClick={onAnalyze}
+              disabled={isLoadingAI}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-md font-bold text-xs transition-all shadow-md ${
+                isLoadingAI
+                  ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white shadow-indigo-600/30 active:scale-[0.98]'
+              }`}
+            >
+              {isLoadingAI ? (
+                <>
+                  <RotateCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Analyzing...</span>
+                </>
+              ) : hasAnalyzed ? (
+                <>
+                  <RotateCw className="w-3.5 h-3.5" />
+                  <span>Analyze Again</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300 fill-current" />
+                  <span>Analyze Code</span>
+                </>
+              )}
+            </button>
+          )}
 
           <button
             onClick={() => setActiveTab('mentor')}

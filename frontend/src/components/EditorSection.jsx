@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Editor from '@monaco-editor/react';
-import { Play, RotateCw, FileCode, Settings, X } from 'lucide-react';
+import { FileCode, Settings, X } from 'lucide-react';
 
 const LANGUAGES = [
   { id: 'javascript', name: 'JavaScript', monacoId: 'javascript' },
@@ -12,13 +12,8 @@ const LANGUAGES = [
 export default function EditorSection({
   language,
   setLanguage,
-  problem,
-  setProblem,
   code,
   setCode,
-  onAnalyze,
-  isLoading,
-  hasAnalyzed,
 }) {
   const [showSettings, setShowSettings] = useState(false);
   const [editorTheme, setEditorTheme] = useState('vs-dark');
@@ -116,10 +111,10 @@ export default function EditorSection({
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-slate-300">Solution Editor ({currentLangObj.name})</span>
-          <span className="text-[11px] text-slate-500">Edit code anytime & re-analyze</span>
+          <span className="text-[11px] text-slate-500 font-mono">Monaco IDE</span>
         </div>
 
-        <div className="h-[480px] w-full rounded-lg overflow-hidden border border-slate-800 bg-[#1e1e1e]">
+        <div className="h-[550px] w-full rounded-lg overflow-hidden border border-slate-800 bg-[#1e1e1e]">
           <Editor
             height="100%"
             language={currentLangObj.monacoId}
@@ -139,37 +134,6 @@ export default function EditorSection({
           />
         </div>
       </div>
-
-      {/* Primary CTA Button */}
-      <button
-        id="analyze-btn"
-        onClick={onAnalyze}
-        disabled={isLoading || !code.trim()}
-        className={`w-full py-3 px-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-lg ${
-          isLoading || !code.trim()
-            ? 'bg-slate-800 text-slate-500 border border-slate-700/50 cursor-not-allowed'
-            : hasAnalyzed
-            ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/25 active:scale-[0.99]'
-            : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/25 active:scale-[0.99]'
-        }`}
-      >
-        {isLoading ? (
-          <>
-            <RotateCw className="w-4 h-4 animate-spin text-white" />
-            <span>Analyzing Code with Mentor AI...</span>
-          </>
-        ) : hasAnalyzed ? (
-          <>
-            <RotateCw className="w-4 h-4" />
-            <span>Analyze Again</span>
-          </>
-        ) : (
-          <>
-            <Play className="w-4 h-4 fill-current" />
-            <span>Analyze Code</span>
-          </>
-        )}
-      </button>
     </div>
   );
 }

@@ -209,6 +209,9 @@ export default function App() {
             onBack={handleBackToLibrary}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
+            onAnalyze={() => handleAnalyze()}
+            isLoadingAI={isLoadingAI}
+            hasAnalyzed={hasAnalyzed}
           />
 
           <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex-1 flex flex-col gap-6">
@@ -276,13 +279,8 @@ export default function App() {
                 <EditorSection
                   language={language}
                   setLanguage={handleLanguageChange}
-                  problem={problemText}
-                  setProblem={setProblemText}
                   code={code}
                   setCode={setCode}
-                  onAnalyze={() => handleAnalyze()}
-                  isLoading={isLoadingAI}
-                  hasAnalyzed={hasAnalyzed}
                 />
               </div>
             </div>
