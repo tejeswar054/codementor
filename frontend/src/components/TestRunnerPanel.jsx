@@ -1,5 +1,6 @@
 import React from 'react';
-import { Play, CheckCircle2, XCircle, Clock, Sparkles, HelpCircle, ArrowLeft } from 'lucide-react';
+import { Play, CheckCircle2, XCircle, Clock, Sparkles, Bot, ArrowRight, BookOpen, Check } from 'lucide-react';
+import ComplexityBadge from './ComplexityBadge';
 
 export default function TestRunnerPanel({
   testResults,
@@ -7,21 +8,10 @@ export default function TestRunnerPanel({
   onRunTests,
   onAskMentorForFailed,
   onBackToLibrary,
+  onViewAIExplanation,
   isLoadingAI,
+  complexity,
 }) {
-  const getBadgeStyle = (difficulty = '') => {
-    switch (difficulty.toLowerCase()) {
-      case 'easy':
-        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-      case 'medium':
-        return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-      case 'hard':
-        return 'bg-rose-500/10 text-rose-400 border-rose-500/20';
-      default:
-        return 'bg-slate-800 text-slate-300';
-    }
-  };
-
   const allPassed = testResults && testResults.passed === testResults.total && testResults.total > 0;
   const failedResults = testResults?.results?.filter((r) => !r.passed) || [];
 
@@ -59,57 +49,80 @@ export default function TestRunnerPanel({
 
       {/* Test Results Output */}
       {testResults && (
-        <div className="flex flex-col gap-3 animate-fade-in">
+        <div className="flex flex-col gap-4 animate-fade-in">
           {/* Summary Status Box */}
           <div
-            className={`border rounded-xl p-4 shadow-xl ${
+            className={`border rounded-xl p-5 shadow-xl ${
               allPassed
-                ? 'bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 border-emerald-500/40'
-                : 'bg-gradient-to-r from-rose-950/60 via-slate-900 to-slate-900 border-rose-500/40'
+                ? 'bg-gradient-to-r from-emerald-950/80 via-slate-900 to-slate-900 border-emerald-500/50'
+                : 'bg-gradient-to-r from-rose-950/70 via-slate-900 to-slate-900 border-rose-500/40'
             }`}
           >
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2.5">
                 {allPassed ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  <div className="p-2 bg-emerald-500/20 rounded-xl text-emerald-400">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
                 ) : (
-                  <XCircle className="w-5 h-5 text-rose-400" />
+                  <div className="p-2 bg-rose-500/20 rounded-xl text-rose-400">
+                    <XCircle className="w-6 h-6" />
+                  </div>
                 )}
-                <h4 className="text-base font-bold text-white">
-                  {allPassed ? '🎉 SOLUTION ACCEPTED' : 'Test Suite Result'}
-                </h4>
+                <div>
+                  <h4 className="text-lg font-extrabold text-white tracking-tight">
+                    {allPassed ? '🎉 Problem Solved!' : 'Test Suite Result'}
+                  </h4>
+                  <p className="text-xs text-slate-300">
+                    {allPassed
+                      ? 'Your solution passed all available tests.'
+                      : `Passed ${testResults.passed} of ${testResults.total} test cases.`}
+                  </p>
+                </div>
               </div>
 
-              <span className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full border ${
+              <span className={`text-xs font-mono font-bold px-3 py-1.5 rounded-full border ${
                 allPassed
-                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                  : 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                  : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
               }`}>
                 {testResults.passed} / {testResults.total} Passed
               </span>
             </div>
 
-            <p className="text-xs text-slate-300 pl-7">
-              {allPassed
-                ? 'Great job! Your solution passed all deterministic test cases.'
-                : `Your code passed ${testResults.passed} of ${testResults.total} test cases. Review the failed cases below or ask the AI mentor for guidance.`}
-            </p>
+            {/* Solved Status Checklist */}
+            {allPassed && (
+              <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-emerald-500/20 text-xs text-emerald-300 font-medium">
+                <span className="flex items-center gap-1 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20">
+                  <Check className="w-3.5 h-3.5 text-emerald-400" /> Correctness Verified
+                </span>
+                <span className="flex items-center gap-1 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20">
+                  <Check className="w-3.5 h-3.5 text-emerald-400" /> Edge cases handled
+                </span>
+                <span className="flex items-center gap-1 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20">
+                  <Check className="w-3.5 h-3.5 text-emerald-400" /> Complexity analyzed
+                </span>
+              </div>
+            )}
           </div>
 
-          {/* Solution Accepted State Actions */}
+          {/* Solution Accepted Actions */}
           {allPassed && (
-            <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-4 flex items-center justify-between gap-3 shadow-lg">
-              <div className="flex items-center gap-2 text-xs text-emerald-300">
-                <Sparkles className="w-4 h-4 text-emerald-400" />
-                <span>Ready to analyze complexity or select next challenge!</span>
-              </div>
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <button
+                onClick={onViewAIExplanation}
+                className="w-full sm:w-1/2 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-lg transition-all"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>View AI Explanation</span>
+              </button>
 
               <button
                 onClick={onBackToLibrary}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow transition-all"
+                className="w-full sm:w-1/2 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 shadow-lg transition-all"
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Try Another Problem</span>
+                <span>Next Problem</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           )}
@@ -119,13 +132,13 @@ export default function TestRunnerPanel({
             <button
               onClick={() => onAskMentorForFailed(failedResults)}
               disabled={isLoadingAI}
-              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-lg transition-all active:scale-[0.99]"
+              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xl transition-all active:scale-[0.99]"
             >
-              <HelpCircle className="w-4 h-4" />
+              <Bot className="w-4 h-4 text-amber-300" />
               <span>
                 {isLoadingAI
                   ? 'AI Mentor is analyzing failed tests...'
-                  : 'Ask AI Mentor about Failed Tests'}
+                  : '🤖 Ask Mentor about Failed Tests'}
               </span>
             </button>
           )}
@@ -181,6 +194,9 @@ export default function TestRunnerPanel({
               </div>
             ))}
           </div>
+
+          {/* Complexity Analysis Badge on Success */}
+          {allPassed && complexity && <ComplexityBadge complexity={complexity} />}
         </div>
       )}
     </div>

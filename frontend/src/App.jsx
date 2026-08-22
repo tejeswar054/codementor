@@ -185,7 +185,9 @@ export default function App() {
                     onRunTests={handleRunTests}
                     onAskMentorForFailed={handleAskMentorForFailed}
                     onBackToLibrary={handleBackToLibrary}
+                    onViewAIExplanation={() => setActiveTab('mentor')}
                     isLoadingAI={isLoadingAI}
+                    complexity={analysis?.complexity}
                   />
                 )}
 
