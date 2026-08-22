@@ -190,20 +190,25 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+    <div className="h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white overflow-hidden">
       <Header onHome={handleBackToLibrary} />
 
       {/* VIEW MODE 1: PROBLEM LIBRARY */}
       {viewMode === 'library' && (
-        <ProblemLibrary
-          onSelectProblem={handleSelectProblem}
-          solvedProblemIds={solvedProblemIds}
-        />
+        <div className="flex-1 overflow-y-auto flex flex-col justify-between">
+          <ProblemLibrary
+            onSelectProblem={handleSelectProblem}
+            solvedProblemIds={solvedProblemIds}
+          />
+          <footer className="border-t border-slate-800/80 bg-slate-900/40 py-4 text-center text-xs text-slate-500 mt-6">
+            <p>CodeMentor AI — Full-Stack LeetCode-Style AI Mentor • Built with React, Express, Gemini API & Safe Sandbox</p>
+          </footer>
+        </div>
       )}
 
-      {/* VIEW MODE 2: CODING WORKSPACE */}
+      {/* VIEW MODE 2: CODING WORKSPACE (LeetCode-Style Independent Scrolling Panels) */}
       {viewMode === 'workspace' && (
-        <>
+        <div className="flex-1 flex flex-col h-[calc(100vh-57px)] overflow-hidden">
           <WorkspaceHeader
             problem={selectedProblem}
             onBack={handleBackToLibrary}
@@ -214,10 +219,10 @@ export default function App() {
             hasAnalyzed={hasAnalyzed}
           />
 
-          <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex-1 flex flex-col gap-6">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Left Column: Problem Details / Test Runner / AI Mentor */}
-              <div className="lg:col-span-5 flex flex-col gap-4">
+          <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 flex-1 h-[calc(100vh-115px)] overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full items-stretch overflow-hidden">
+              {/* Left Column: Independently Scrollable (Problem Details / Test Runner / AI Mentor) */}
+              <div className="lg:col-span-5 h-full overflow-y-auto pr-2.5 flex flex-col gap-4">
                 {error && <ErrorBanner message={error} onRetry={handleRunTests} />}
 
                 {/* Tab 1: Problem Details */}
@@ -274,8 +279,8 @@ export default function App() {
                 )}
               </div>
 
-              {/* Right Column: Monaco Editor */}
-              <div className="lg:col-span-7 flex flex-col gap-4">
+              {/* Right Column: Independent Editor Container */}
+              <div className="lg:col-span-7 h-full flex flex-col overflow-hidden">
                 <EditorSection
                   language={language}
                   setLanguage={handleLanguageChange}
@@ -285,12 +290,8 @@ export default function App() {
               </div>
             </div>
           </main>
-        </>
+        </div>
       )}
-
-      <footer className="border-t border-slate-800/80 bg-slate-900/40 py-4 text-center text-xs text-slate-500">
-        <p>CodeMentor AI — Full-Stack LeetCode-Style AI Mentor • Built with React, Express, Gemini API & Safe Sandbox</p>
-      </footer>
     </div>
   );
 }
