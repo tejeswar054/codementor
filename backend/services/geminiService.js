@@ -128,7 +128,11 @@ Please check if the updated code resolves the previous bug, and set "reanalysisC
 `;
     }
 
-    const modelCandidates = ['gemini-2.5-flash', 'gemini-1.5-flash'];
+    const modelCandidates = [
+      'gemini-3.6-flash',
+      'gemini-2.5-flash',
+      'gemini-3.5-flash-lite',
+    ];
     let lastError = null;
 
     for (const modelName of modelCandidates) {
