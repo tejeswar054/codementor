@@ -159,22 +159,7 @@ export default function App() {
 
           <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex-1 flex flex-col gap-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Left Column: Monaco Editor */}
-              <div className="lg:col-span-7 flex flex-col gap-4">
-                <EditorSection
-                  language={language}
-                  setLanguage={setLanguage}
-                  problem={problemText}
-                  setProblem={setProblemText}
-                  code={code}
-                  setCode={setCode}
-                  onAnalyze={() => handleAnalyze()}
-                  isLoading={isLoadingAI}
-                  hasAnalyzed={hasAnalyzed}
-                />
-              </div>
-
-              {/* Right Column: Problem Details / Test Runner / AI Mentor */}
+              {/* Left Column: Problem Details / Test Runner / AI Mentor */}
               <div className="lg:col-span-5 flex flex-col gap-4">
                 {error && <ErrorBanner message={error} onRetry={handleRunTests} />}
 
@@ -221,6 +206,21 @@ export default function App() {
                     )}
                   </>
                 )}
+              </div>
+
+              {/* Right Column: Monaco Editor */}
+              <div className="lg:col-span-7 flex flex-col gap-4">
+                <EditorSection
+                  language={language}
+                  setLanguage={setLanguage}
+                  problem={problemText}
+                  setProblem={setProblemText}
+                  code={code}
+                  setCode={setCode}
+                  onAnalyze={() => handleAnalyze()}
+                  isLoading={isLoadingAI}
+                  hasAnalyzed={hasAnalyzed}
+                />
               </div>
             </div>
           </main>
