@@ -26,7 +26,7 @@ export default function WorkspaceHeader({
   };
 
   return (
-    <div className="bg-slate-900 border-b border-slate-800 sticky top-[57px] z-40">
+    <div className="bg-slate-900 border-b border-slate-800 shrink-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
         {/* Left: Back button & Title */}
         <div className="flex items-center gap-3">

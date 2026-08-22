@@ -208,7 +208,7 @@ export default function App() {
 
       {/* VIEW MODE 2: CODING WORKSPACE (LeetCode-Style Independent Scrolling Panels) */}
       {viewMode === 'workspace' && (
-        <div className="flex-1 flex flex-col h-[calc(100vh-57px)] overflow-hidden">
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           <WorkspaceHeader
             problem={selectedProblem}
             onBack={handleBackToLibrary}
@@ -219,10 +219,10 @@ export default function App() {
             hasAnalyzed={hasAnalyzed}
           />
 
-          <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 flex-1 h-[calc(100vh-115px)] overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full items-stretch overflow-hidden">
+          <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 flex-1 min-h-0 overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full min-h-0 items-stretch">
               {/* Left Column: Independently Scrollable (Problem Details / Test Runner / AI Mentor) */}
-              <div className="lg:col-span-5 h-full overflow-y-auto pr-2.5 flex flex-col gap-4">
+              <div className="lg:col-span-5 h-full min-h-0 overflow-y-auto pr-2.5 flex flex-col gap-4">
                 {error && <ErrorBanner message={error} onRetry={handleRunTests} />}
 
                 {/* Tab 1: Problem Details */}
@@ -280,7 +280,7 @@ export default function App() {
               </div>
 
               {/* Right Column: Independent Editor Container */}
-              <div className="lg:col-span-7 h-full flex flex-col overflow-hidden">
+              <div className="lg:col-span-7 h-full min-h-0 flex flex-col gap-4 overflow-hidden">
                 <EditorSection
                   language={language}
                   setLanguage={handleLanguageChange}

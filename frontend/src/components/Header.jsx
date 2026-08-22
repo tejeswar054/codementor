@@ -3,7 +3,7 @@ import { Code2, Sparkles, BookOpenCheck } from 'lucide-react';
 
 export default function Header({ onHome }) {
   return (
-    <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
+    <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur shrink-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-3 cursor-pointer group" onClick={onHome}>
           <div className="p-2 bg-indigo-600/20 border border-indigo-500/30 rounded-xl text-indigo-400 group-hover:scale-105 transition-transform">
