@@ -129,9 +129,9 @@ Please check if the updated code resolves the previous bug, and set "reanalysisC
     }
 
     const modelCandidates = [
-      'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-1.5-flash',
+      'gemini-2.5-flash-preview-05-20',
+      'gemini-2.0-flash-exp',
+      'gemini-1.5-flash-latest',
     ];
     let lastError = null;
 
