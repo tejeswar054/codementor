@@ -18,19 +18,55 @@ class ExecutionService {
    */
   async executeCode({ language = 'javascript', code, functionName, testCases = [] }) {
     const executionMode = process.env.CODE_EXECUTION_MODE || 'sandbox';
+    const normalizedLang = language.toLowerCase();
 
     // If Judge0 is configured and mode is judge0, attempt Judge0 execution
     if (executionMode === 'judge0' && process.env.JUDGE0_API_KEY && process.env.JUDGE0_API_URL) {
       try {
-        return await this.executeWithJudge0({ language, code, functionName, testCases });
+        return await this.executeWithJudge0({ language: normalizedLang, code, functionName, testCases });
       } catch (err) {
         console.warn('⚠️ Judge0 execution failed. Falling back to safe local VM sandbox:', err.message);
+        // Only fall back to VM sandbox for JavaScript
+        if (normalizedLang !== 'javascript') {
+          return this.buildLanguageUnsupportedResult(normalizedLang, testCases);
+        }
         return this.executeInVMSandbox({ code, functionName, testCases });
       }
     }
 
-    // Default: Safe Local VM Sandbox execution
+    // Local VM sandbox only supports JavaScript
+    if (normalizedLang !== 'javascript') {
+      return this.buildLanguageUnsupportedResult(normalizedLang, testCases);
+    }
+
+    // Default: Safe Local VM Sandbox execution (JavaScript only)
     return this.executeInVMSandbox({ code, functionName, testCases });
+  }
+
+  /**
+   * Returns a friendly "not supported" result for non-JS languages in sandbox mode.
+   * Prevents Python/Java/C++ from being silently run through the JS VM engine.
+   */
+  buildLanguageUnsupportedResult(language, testCases) {
+    const langLabel = language.charAt(0).toUpperCase() + language.slice(1);
+    const message = `${langLabel} execution requires Judge0 API integration. Configure JUDGE0_API_KEY and set CODE_EXECUTION_MODE=judge0 in your .env to run ${langLabel} code.`;
+    return {
+      success: false,
+      executionMode: 'sandbox',
+      passed: 0,
+      total: testCases.length,
+      results: testCases.map((tc, i) => ({
+        testCase: i + 1,
+        name: tc.type ? `${tc.type.toUpperCase()} Case` : `Test Case ${i + 1}`,
+        input: tc.input,
+        expected: tc.expected,
+        actual: `Unsupported: ${message}`,
+        passed: false,
+        executionTime: '0ms',
+        error: message,
+      })),
+      languageError: message,
+    };
   }
 
   /**
@@ -173,11 +209,8 @@ class ExecutionService {
 
     for (let i = 0; i < testCases.length; i++) {
       const tc = testCases[i];
-      const runnerCode = `
-${code}
+      const runnerCode = this.buildRunnerCode(language, code, functionName, tc.input);
 
-console.log(JSON.stringify(${functionName}(...[${tc.input}])));
-`;
 
       const response = await axios.post(
         url,
@@ -219,6 +252,27 @@ console.log(JSON.stringify(${functionName}(...[${tc.input}])));
       total: testCases.length,
       results,
     };
+  }
+
+  /**
+   * Builds language-appropriate runner code that calls the function and prints output.
+   * Judge0 captures stdout, so each language needs its own print statement.
+   */
+  buildRunnerCode(language, code, functionName, input) {
+    const lang = language.toLowerCase();
+    switch (lang) {
+      case 'python':
+        return `${code}\n\nimport json\nprint(json.dumps(${functionName}(*${input})))`;
+      case 'java': {
+        // Wrap in a Main class runner that calls the function and prints JSON
+        return `import com.google.gson.Gson;\n${code}\n\npublic class Main {\n  public static void main(String[] args) {\n    Solution sol = new Solution();\n    System.out.println(new Gson().toJson(sol.${functionName}(${input})));\n  }\n}`;
+      }
+      case 'cpp':
+        return `#include <bits/stdc++.h>\nusing namespace std;\n${code}\n\nint main() {\n  auto result = ${functionName}(${input});\n  cout << result << endl;\n  return 0;\n}`;
+      case 'javascript':
+      default:
+        return `${code}\n\nconsole.log(JSON.stringify(${functionName}(...[${input}])));`;
+    }
   }
 
   /**
